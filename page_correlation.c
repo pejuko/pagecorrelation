@@ -236,42 +236,83 @@ void write(char *name, char *j, PIX *pix)
 	free(fname);
 }
 
-PIX* scale(PIX *pix, char *name, t_options *o)
+PIX* binarize(PIX *pix, t_options *o)
 {
-	PIX *pixg, *pix8, *pixs, *pixb;
+	PIX *pixb;
 	PIX *pt = NULL;
 	l_uint32 threshold = o->threshold;
-
-	pixg = pixRemoveColormap(pix, REMOVE_CMAP_TO_GRAYSCALE);
-	pix8 = pixConvertTo8(pixg, FALSE);
-	write(name, "-8", pix8);
-
-	pixs = pixScaleToSize(pix8, o->width, o->height);
-	write(name, "-s", pixs);
 
 	/*pixn = pixBackgroundNormFlex(pixs, 7, 7, 1, 1, 10);*/
 
 	switch (o->method) {
 		case THRESHOLD_DITHER:
-			pixb = pixDitherToBinary(pixs);
+			pixb = pixDitherToBinary(pix);
 			break;
 		case THRESHOLD_OTSU:
-			pixOtsuAdaptiveThreshold(pixs, pixs->w, pixs->h, 0, 0, 0, &pt, 0);
+			pixOtsuAdaptiveThreshold(pix, pix->w, pix->h, 0, 0, 0, &pt, 0);
 			pixGetPixel(pt, 0, 0, &threshold);
 			//printf("Threshold: %d\n", threshold);
 			//pixb = pixConvertTo1(pixs, threshold);
-			pixb = pixThresholdToBinary(pixs, threshold);
+			pixb = pixThresholdToBinary(pix, threshold);
 			break;
 		default: /* threshold */
-			pixb = pixThresholdToBinary(pixs, threshold);
+			pixb = pixThresholdToBinary(pix, threshold);
 			break;
 	}
-	write(name, "-b", pixb);
+
+	if (pt) pixDestroy(&pt);
+
+	return pixb;
+}
+
+PIX* scale(PIX *pix, char *name, t_options *o)
+{
+	PIX *pixg, *pix8, *pixb, *pixs, *pixc;
+	BOXA *boxa;
+	NUMA *na;
+	BOX *cbox;
+	l_int32 x, y, w, h;
+
+	pixg = pixRemoveColormap(pix, REMOVE_CMAP_TO_GRAYSCALE);
+	pix8 = pixConvertTo8(pixg, FALSE);
+	write(name, "-8", pix8);
+
+	pixb = binarize(pix8, o);
+	//write(name, "-b1", pixb);
+	pixGetWordBoxesInTextlines(pixb, 1, 5, 8, o->width, 100, &boxa, &na);
+	//boxa = pixConnCompBB(pixb, 4);
+	write(name, "-box", pixDrawBoxaRandom(pixb, boxa, 2));
+	boxaGetExtent(boxa, 0, 0, &cbox);
+
+	/*
+	x = (l_int32)(((float)(cbox->x) / (float)(pixb->w)) * (float)(pix8->w)) - 5;
+	w = (l_int32)(((float)(cbox->w) / (float)(pixb->w)) * (float)(pix8->w)) + 10;
+	y = (l_int32)(((float)(cbox->y) / (float)(pixb->h)) * (float)(pix8->h)) - 5;
+	h = (l_int32)(((float)(cbox->h) / (float)(pixb->h)) * (float)(pix8->h)) + 10;
+
+	if (x<0) x=0;
+	if (y<0) y=0;
+	if (h > pix8->h) h = pix8->h;
+	if (w > pix8->w) h = pix8->w;
+
+	cbox->x = x;
+	cbox->w = w;
+	cbox->y = y;
+	cbox->h = h;
+	*/
+	pixc = pixClipRectangle(pix8, cbox, 0);
+	write(name, "-c", pixc);
+
+	pixs = pixScaleToSize(pixc, o->width, o->height);
+
+	pixDestroy(&pixb);
+	pixb = binarize(pixs, o);
+	write(name, "-b2", pixb);
 
 	pixDestroy(&pixg);
 	pixDestroy(&pix8);
+	pixDestroy(&pixc);
 	pixDestroy(&pixs);
-	if (pt) pixDestroy(&pt);
 
 	return pixb;
 }
@@ -329,10 +370,10 @@ int main(int argc, char **argv)
 	pixb2 = scale(pix2, "pix2", o);
 	/*printf("pixb1: %dx%d\npixb2: %dx%d\n", pixb1->w, pixb1->h, pixb2->w, pixb2->h);*/
 
-	pixGetWordBoxesInTextlines(pixb1, 1, 10, 10, 500, 50, &boxa1, &na1);
-	//write("pixb1", "-box", pixDrawBoxaRandom(pixb1, boxa1, 2));
-	pixGetWordBoxesInTextlines(pixb2, 1, 10, 10, 500, 50, &boxa2, &na2);
-	//write("pixb2", "-box", pixDrawBoxaRandom(pixb2, boxa2, 2));
+	pixGetWordBoxesInTextlines(pixb1, 1, 3, 5, o->width/4, 50, &boxa1, &na1);
+	write("pixb1", "-box", pixDrawBoxaRandom(pixb1, boxa1, 2));
+	pixGetWordBoxesInTextlines(pixb2, 1, 3, 5, o->width/4, 50, &boxa2, &na2);
+	write("pixb2", "-box", pixDrawBoxaRandom(pixb2, boxa2, 2));
 	naa1 = boxaExtractSortedPattern(boxa1, na1);
 	naa2 = boxaExtractSortedPattern(boxa2, na2);
 	count_numaa = (numaaGetCount(naa1) > numaaGetCount(naa2)) ? numaaGetCount(naa2) : numaaGetCount(naa1);
