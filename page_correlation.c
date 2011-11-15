@@ -279,7 +279,7 @@ PIX* scale(PIX *pix, char *name, t_options *o)
 
 	pixb = binarize(pix8, o);
 	//write(name, "-b1", pixb);
-	pixGetWordBoxesInTextlines(pixb, 1, 5, 8, o->width, 100, &boxa, &na);
+	pixGetWordBoxesInTextlines(pixb, 1, 3, 5, o->width, 100, &boxa, &na);
 	//boxa = pixConnCompBB(pixb, 4);
 	if (boxa->n > 0) {
 		write(name, "-box", pixDrawBoxaRandom(pixb, boxa, 2));
