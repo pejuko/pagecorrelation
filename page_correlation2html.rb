@@ -110,6 +110,14 @@ $index << %~
       ns.innerHTML = "" + num_selected;
     }
 
+    function invertSelected() {
+      var checkboxes = document.getElementsByName("line");
+      for (var i=0; i<checkboxes.length; i++) {
+        checkboxes[i].checked = checkboxes[i].checked ? false : true;
+        toggle(checkboxes[i]);
+      }
+    }
+
     function updateSelected() {
       var ns = document.getElementById("num_selected");
       var checkboxes = document.getElementsByName("line");
@@ -132,7 +140,11 @@ $index << %~
 <form>
   <table>
     <tr>
-      <th></th>
+      <th>
+        <div class="toolbox">
+          <a href="javascript:invertSelected()">invert</a>
+        </div>
+      </th>
       <th></th>
       <th></th>
       <th>Page 1</th>
@@ -185,6 +197,9 @@ end
 
 $index << %~
   </table>
+  <div class="toolbox">
+    <a href="javascript:invertSelected()">invert</a>
+  </div>
   <p>
     <b>Total:</b> #{i} <b>Same:</b> #{num_same} <b>Different:</b> #{num_diff} <b>Size:</b> #{num_sizes}
   </p>
