@@ -270,7 +270,7 @@ PIX* scale(PIX *pix, char *name, t_options *o)
 	PIX *pixg, *pix8, *pixb, *pixs, *pixc;
 	BOXA *boxa;
 	NUMA *na;
-	BOX *cbox;
+	BOX *cbox = NULL;
 	l_int32 x, y, w, h;
 
 	pixg = pixRemoveColormap(pix, REMOVE_CMAP_TO_GRAYSCALE);
@@ -281,8 +281,10 @@ PIX* scale(PIX *pix, char *name, t_options *o)
 	//write(name, "-b1", pixb);
 	pixGetWordBoxesInTextlines(pixb, 1, 5, 8, o->width, 100, &boxa, &na);
 	//boxa = pixConnCompBB(pixb, 4);
-	write(name, "-box", pixDrawBoxaRandom(pixb, boxa, 2));
-	boxaGetExtent(boxa, 0, 0, &cbox);
+	if (boxa->n > 0) {
+		write(name, "-box", pixDrawBoxaRandom(pixb, boxa, 2));
+		boxaGetExtent(boxa, 0, 0, &cbox);
+	}
 
 	/*
 	x = (l_int32)(((float)(cbox->x) / (float)(pixb->w)) * (float)(pix8->w)) - 5;
@@ -300,7 +302,10 @@ PIX* scale(PIX *pix, char *name, t_options *o)
 	cbox->y = y;
 	cbox->h = h;
 	*/
-	pixc = pixClipRectangle(pix8, cbox, 0);
+	if (cbox)
+		pixc = pixClipRectangle(pix8, cbox, 0);
+	else
+		pixc = pixClone(pix8);
 	write(name, "-c", pixc);
 
 	pixs = pixScaleToSize(pixc, o->width, o->height);
@@ -371,9 +376,11 @@ int main(int argc, char **argv)
 	/*printf("pixb1: %dx%d\npixb2: %dx%d\n", pixb1->w, pixb1->h, pixb2->w, pixb2->h);*/
 
 	pixGetWordBoxesInTextlines(pixb1, 1, 3, 5, o->width/4, 50, &boxa1, &na1);
-	write("pixb1", "-box", pixDrawBoxaRandom(pixb1, boxa1, 2));
+	if (boxa1->n > 0)
+		write("pixb1", "-box", pixDrawBoxaRandom(pixb1, boxa1, 2));
 	pixGetWordBoxesInTextlines(pixb2, 1, 3, 5, o->width/4, 50, &boxa2, &na2);
-	write("pixb2", "-box", pixDrawBoxaRandom(pixb2, boxa2, 2));
+	if (boxa2->n > 0)
+		write("pixb2", "-box", pixDrawBoxaRandom(pixb2, boxa2, 2));
 	naa1 = boxaExtractSortedPattern(boxa1, na1);
 	naa2 = boxaExtractSortedPattern(boxa2, na2);
 	count_numaa = (numaaGetCount(naa1) > numaaGetCount(naa2)) ? numaaGetCount(naa2) : numaaGetCount(naa1);
