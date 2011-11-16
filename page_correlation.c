@@ -271,6 +271,7 @@ PIX* scale(PIX *pix, char *name, t_options *o)
 	BOXA *boxa;
 	NUMA *na;
 	BOX *cbox = NULL;
+	NUMAA *naa;
 	l_int32 x, y, w, h;
 
 	pixg = pixRemoveColormap(pix, REMOVE_CMAP_TO_GRAYSCALE);
@@ -279,9 +280,10 @@ PIX* scale(PIX *pix, char *name, t_options *o)
 
 	pixb = binarize(pix8, o);
 	//write(name, "-b1", pixb);
-	pixGetWordBoxesInTextlines(pixb, 1, 3, 5, o->width, 100, &boxa, &na);
+	pixGetWordBoxesInTextlines(pixb, 1, 5, 8, o->width, 100, &boxa, &na);
+	naa = boxaExtractSortedPattern(boxa, na);
 	//boxa = pixConnCompBB(pixb, 4);
-	if (boxa->n > 0) {
+	if (naa->n >= o->min_lines) {
 		write(name, "-box", pixDrawBoxaRandom(pixb, boxa, 2));
 		boxaGetExtent(boxa, 0, 0, &cbox);
 	}
