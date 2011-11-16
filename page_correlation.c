@@ -31,7 +31,7 @@ typedef struct options {
 void options_reset(t_options *o) {
 	o->size_threshold = 0.6;
 	o->correlation_threshold = 0.49;
-	o->correlation_for_text = 1;
+	o->correlation_for_text = 0;
 	o->min_lines = 3;
 	o->min_words = 3;
 	o->blank_threshold = 3000;
@@ -108,9 +108,10 @@ void help()
 	printf("\t0 for one argument means keep aspect ratio.\n");
 	printf("\n");
 
-	printf("--disable-text-correlation\n");
+	printf("--enable-text-correlation\n");
+	printf("--disable-text-correlation (default)\n");
 	printf("\tIf layout analysis thinks two images does not match then pixel correlation matters.\n");
-	printf("\tThis disable pixel correlation for text documents.");
+	printf("\tThis enable/disable pixel correlation for text documents.\n");
 	printf("\n");
 
 	printf("--help,-?\n");
@@ -145,7 +146,8 @@ t_options* parse_command_line(int argc, char **argv)
 			{"blank-threshold", required_argument, 0, 'b'},
 			{"width", required_argument, 0, 'w'},
 			{"height", required_argument, 0, 'h'},
-			{"disable-text-correlation", no_argument, 0, 1},
+			{"enable-text-correlation", no_argument, 0, 1},
+			{"disable-text-correlation", no_argument, 0, 2},
 			{"help", no_argument, 0, '?'},
 			{0, 0, 0, 0}
 		};
@@ -154,6 +156,9 @@ t_options* parse_command_line(int argc, char **argv)
 
 		switch (c) {
 			case 1:
+				o->correlation_for_text = 1;
+				break;
+			case 2:
 				o->correlation_for_text = 0;
 				break;
 			case 's':
