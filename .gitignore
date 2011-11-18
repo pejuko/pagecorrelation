@@ -1,1 +1,8 @@
 page_correlation
+samples*
+training-set
+test-set
+*tif
+*pbm
+*ppm
+*png
