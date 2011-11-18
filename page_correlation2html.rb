@@ -85,10 +85,10 @@ $index << %~
         for (var i=0; i<selected.length; i++) {
           var attrs = new Array();
           if (f1.checked) {
-            attrs.push(f1pattern.exec(lines[i])[1]);
+            attrs.push(f1pattern.exec(lines[selected[i]])[1]);
           }
           if (f2.checked) {
-            attrs.push(f2pattern.exec(lines[i])[1]);
+            attrs.push(f2pattern.exec(lines[selected[i]])[1]);
           }
           tmp = tmp + attrs.join("&nbsp;&nbsp;&nbsp;") + "<br />";
         }
