@@ -2,8 +2,8 @@
 
 samples = sg = sb = dg = db = 0
 dirs = Dir["samples*"] | Dir["set-*"]
-template = "%12s %8s %5s %5s %5s %5s"
-head = template % %w(dir samples 10 11 00 01)
+template = "%12s %8s %5s (%6.2f%%) %5s (%6.2f%%) %5s (%6.2f%%) %5s (%6.2f%%)"
+head = template % ['dir', 'samples', '10', 100, '11', 100, '00', 100, '01', 100]
 hr = "-" * head.size
 puts head
 puts hr
@@ -17,7 +17,7 @@ dirs.each do |dir|
     ddg += 1 if l[1]==0 and l[2]==0
     ddb += 1 if l[1]==0 and l[2]==1
   end
-  puts template % [dir, list.size, dsg, dsb, ddg, ddb]
+  puts template % [dir, list.size, dsg, 100*dsg.to_f/list.size, dsb, 100*dsb.to_f/list.size, ddg, 100*ddg.to_f/list.size, ddb, 100*ddb.to_f/list.size]
   sg += dsg
   sb += dsb
   dg += ddg
@@ -25,4 +25,4 @@ dirs.each do |dir|
   samples += list.size
 end
 puts hr
-puts template % ["total", samples, sg, sb, dg, db]
+puts template % ["total", samples, sg, 100*sg.to_f/samples, sb, 100*sb.to_f/samples, dg, 100*dg.to_f/samples, db, 100*db.to_f/samples]
