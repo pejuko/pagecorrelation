@@ -1,4 +1,5 @@
 page_correlation
+nn_compare
 samples*
 training-set
 test-set
@@ -6,3 +7,4 @@ test-set
 *pbm
 *ppm
 *png
+set-*
