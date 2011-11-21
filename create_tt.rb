@@ -2,25 +2,30 @@
 
 require 'fileutils'
 
-training_dir = "training-set"
-test_dir = "test-set"
+training_dir = "set-train"
+test_dir = "set-test"
+cross_dir= "set-cross"
 
-if File.exists?(training_dir) or File.exists?(test_dir)
+
+if File.exists?(training_dir) or File.exists?(test_dir) or File.exists?(cross_dir)
   puts "training-set or test-set exist"
   exit 1
 end
 
 trset = ARGV.shift
-trset = trset ? trset.to_f : 0.6
+trset = trset ? trset.to_f : 0.5
+crset = ARGV.shift
+crset = crset ? crset.to_f : 0.3
 teset = ARGV.shift
-teset = teset ? teset.to_f : 0.4
+teset = teset ? teset.to_f : 0.2
 
-p [trset, teset]
+p [trset, crset, teset]
 
-Dir.mkdir training_dir
-Dir.mkdir File.join(training_dir, 'img')
-Dir.mkdir test_dir
-Dir.mkdir File.join(test_dir, 'img')
+[training_dir, test_dir, cross_dir].each do |dir|
+  Dir.mkdir dir
+  Dir.mkdir File.join(dir, 'img')
+end
+
 Dir["sample*"].each do |dir|
   puts dir
   imgdir = File.join(dir, 'img')
@@ -35,10 +40,14 @@ Dir["sample*"].each do |dir|
 
   trlist = []
   lists.each{|l| rbound = (trset*l.size).to_i; p rbound; trlist |= l[0..rbound]}
+
   telist = []
   lists.each{|l| lbound = (trset*l.size).to_i; rbound = lbound + (teset*l.size).to_i; p [lbound, rbound]; telist |= l[lbound..rbound]}
 
-  [[training_dir,trlist], [test_dir,telist]].each do |dst, l|
+  crlist = []
+  lists.each{|l| lbound = (trset*l.size).to_i + (teset*l.size); rbound = lbound + (crset*l.size).to_i; p [lbound, rbound]; crlist |= l[lbound..rbound]}
+
+  [[training_dir,trlist], [cross_dir, crlist], [test_dir,telist]].each do |dst, l|
     imgdir_dst = File.join(dst, 'img')
     list_file = File.open(File.join(dst, 'list.txt'), 'a')
     l.each do |line|

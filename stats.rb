@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 samples = sg = sb = dg = db = 0
-dirs = Dir["samples*"] + ["training-set", "test-set"]
+dirs = Dir["samples*"] | Dir["set-*"]
 template = "%12s %8s %5s %5s %5s %5s"
 head = template % %w(dir samples 10 11 00 01)
 hr = "-" * head.size
