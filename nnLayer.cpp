@@ -3,12 +3,12 @@
 #include "nnLayer.h"
 
 
-nnLayer::nnLayer(int input_size, int number_nodes, double alpha)
+nnLayer::nnLayer(int input_size, int number_nodes)
 	: m_inputSize(input_size),
 	  m_nodes()
 {
 	for (int i=0; i<number_nodes; i++) {
-		m_nodes.push_back(nnNode(input_size, alpha));
+		m_nodes.push_back(nnNode(input_size));
 	}
 }
 
@@ -26,11 +26,11 @@ std::vector<double> nnLayer::process(std::vector<double> const& input)
 }
 
 
-std::vector<double> nnLayer::learn(std::vector<double> err)
+std::vector<double> nnLayer::learn(std::vector<double> err, double alpha, double gamma)
 {
 	std::vector<std::vector<double> > e;
 	for (int i=0; i<m_nodes.size(); i++) {
-		e.push_back(m_nodes[i].learn(err[i]));
+		e.push_back(m_nodes[i].learn(err[i], alpha, gamma));
 	}
 
 	int rows = e.size();

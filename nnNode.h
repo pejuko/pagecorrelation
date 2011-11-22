@@ -6,9 +6,9 @@
 
 class nnNode {
 	public:
-		nnNode(int input_size, double alpha=0.1);
+		nnNode(int input_size);
 		double process(std::vector<double> const& input);
-		std::vector<double> learn(double err);
+		std::vector<double> learn(double err, double alpha=0.1, double gamma=1.0);
 
 	private:
 		double g(double f) const { return 1.0/(1+exp(-1*f)); };

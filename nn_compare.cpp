@@ -52,7 +52,7 @@ std::vector<double> read_data(char *f1, char *f2)
 int main(int argc, char **argv)
 {
 	srandom( clock() + time(NULL) );
-	NN nn = NN(80000, 2, 3, 20, 1.0);
+	NN nn = NN(80000, 2, 3, 20);
 	
 	std::vector<double> data = read_data(argv[1], argv[2]);
 
@@ -61,13 +61,10 @@ int main(int argc, char **argv)
 		printf("%d: %f\n", i, result[i]);
 	}
 
-	nn.learn(data, result);
-	//std::cout << err << std::endl;
-
 	for (int i=0; i<10; i++) {
 		result[0] = 1.0;
 		result[1] = 0.0;
-		nn.learn(data, result);
+		nn.learn(data, result, 1.0, 0.5);
 		//std::cout << "err: " << err << std::endl;
 		result = nn.process(data);
 		for (int i=0; i<result.size(); i++) {

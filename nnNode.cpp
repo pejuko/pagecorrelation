@@ -7,11 +7,10 @@
 #include "nnNode.h"
 
 
-nnNode::nnNode(int input_size, double alpha)
+nnNode::nnNode(int input_size)
 	: m_inputSize(input_size),
 	  m_error(0.0),
 	  m_lastResult(0.0),
-	  m_alpha(alpha),
 	  m_theta()
 {
 	for (int i=0; i<=input_size; i++) {
@@ -35,7 +34,7 @@ double nnNode::process(std::vector<double> const& input)
 }
 
 
-std::vector<double> nnNode::learn(double err)
+std::vector<double> nnNode::learn(double err, double alpha, double gamma)
 {
 	std::vector<double> delta;
 
@@ -43,8 +42,14 @@ std::vector<double> nnNode::learn(double err)
 		delta.push_back(m_theta[i] * err);
 	}
 
+	double reg = 0.0;
 	for (int i=1; i<m_theta.size(); i++) {
-		m_theta[i] += m_alpha * delta[i] * (m_lastResult * (1-m_lastResult));
+		reg += m_theta[i];
+	}
+	reg = (gamma * reg) / m_theta.size();
+
+	for (int i=1; i<m_theta.size(); i++) {
+		m_theta[i] += alpha * delta[i] * (m_lastResult * (1-m_lastResult)) + reg;
 	}
 
 	return delta;
