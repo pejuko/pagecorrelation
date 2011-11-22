@@ -1,76 +1,45 @@
 #include <cassert>
 #include <cstdlib>
-#include <ctime>
+#include <string.h>
 #include <vector>
 #include <iostream>
 
-extern "C" {
-#include <leptonica/allheaders.h>
-}
-
 #include "nn.h"
+#include "utils.h"
 
 
-bool get_data(char *f, std::vector<double> & output)
+int compare(NN & nn, const char *f1, const char *f2)
 {
-	PIX *pix = pixRead(f);
-	assert(pix != NULL);
+	std::vector<double> data = read_data(f1, f2);
+	std::vector<double> result = nn.process(data);
 
-	PIX *pixg, *pix8, *pixs;
-	pixg = pixRemoveColormap(pix, REMOVE_CMAP_TO_GRAYSCALE);
-	pix8 = pixConvertTo8(pixg, FALSE);
-	pixs = pixScaleToSize(pix8, 200, 200);
-
-	pixDestroy(&pix);
-	pixDestroy(&pixg);
-	pixDestroy(&pix8);
-
-	l_uint32 val;
-	for (int y=0; y<pixs->h; y++) {
-		for (int x=0; x<pixs->w; x++) {
-			pixGetPixel(pixs, x, y, &val);
-			output.push_back(double(val));
-		}
-	}
-
-	pixDestroy(&pixs);
-
-	return true;
+	print_result(result, f1, f2);
 }
-
-std::vector<double> read_data(char *f1, char *f2)
-{
-	std::vector<double> output;
-
-	get_data(f1, output);
-	get_data(f2, output);
-
-	return output;
-}
-
 
 int main(int argc, char **argv)
 {
-	srandom( clock() + time(NULL) );
-	NN nn = NN(80000, 2, 3, 20);
-	
-	std::vector<double> data = read_data(argv[1], argv[2]);
-
-	std::vector<double> result = nn.process(data);
-	for (int i=0; i<result.size(); i++) {
-		printf("%d: %f\n", i, result[i]);
+	if ((argc <= 1) || (argc==2 && argv[1][0] != '-') || (argv[1][0]!='-' && argc != 3) || (argc==1)){
+		std::cout << "Usage: nn_compare <img1|-> [img2]" << std::endl;
+		std::cout << "Example: nn_compare file1.jpg file2.jpg" << std::endl;
+		std::cout << "Example: cat list_of_pairs.txt | nn_compare -" << std::endl;
+		return 1;
 	}
+	
+	NN nn = NN("data.nn");
 
-	for (int i=0; i<10; i++) {
-		result[0] = 1.0;
-		result[1] = 0.0;
-		nn.learn(data, result, 1.0, 0.5);
-		//std::cout << "err: " << err << std::endl;
-		result = nn.process(data);
-		for (int i=0; i<result.size(); i++) {
-			printf("%d: %f\n", i, result[i]);
+	if (argv[1][0] == '-') {
+		while (! std::cin.eof()) {
+			std::string f1, f2;
+			std::cin >> f1 >> f2;
+			if (f1.empty() || f2.empty())
+				continue;
+			compare(nn, f1.c_str(), f2.c_str());
 		}
-		std::cout << std::endl;
+	} else {
+		if (compare(nn, argv[1], argv[2]) >= 0.5)
+			return 0;
+		else
+			return 1;
 	}
 
 	return 0;

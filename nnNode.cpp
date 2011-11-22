@@ -38,7 +38,7 @@ std::vector<double> nnNode::learn(double err, double alpha, double gamma)
 {
 	std::vector<double> delta;
 
-	for (int i=1; i<m_theta.size(); i++) {
+	for (int i=0; i<m_theta.size(); i++) {
 		delta.push_back(m_theta[i] * err);
 	}
 
@@ -46,8 +46,9 @@ std::vector<double> nnNode::learn(double err, double alpha, double gamma)
 	for (int i=1; i<m_theta.size(); i++) {
 		reg += m_theta[i];
 	}
-	reg = (gamma * reg) / m_theta.size();
+	reg = (gamma * reg) / m_inputSize;
 
+	m_theta[0] += alpha * delta[0] * (m_lastResult * (1-m_lastResult));
 	for (int i=1; i<m_theta.size(); i++) {
 		m_theta[i] += alpha * delta[i] * (m_lastResult * (1-m_lastResult)) + reg;
 	}

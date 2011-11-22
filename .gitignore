@@ -1,5 +1,6 @@
 page_correlation
 nn_compare
+nn_learn
 samples*
 training-set
 test-set
@@ -8,3 +9,5 @@ test-set
 *ppm
 *png
 set-*
+data*
+core
