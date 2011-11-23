@@ -51,6 +51,7 @@ std::vector<double> nnLayer::learn(std::vector<double> err, double alpha, double
 	std::cout << "delta: " << delta.size() << std::endl;
 #endif
 
+#ifndef NOT_VERBOSE_DEBUG
 	//printf ("deltas: %d\n", delta.size());
 	if (delta.size() < 20) {
 		for (int i=0; i<delta.size(); i++) {
@@ -58,6 +59,7 @@ std::vector<double> nnLayer::learn(std::vector<double> err, double alpha, double
 		}
 		printf ("\n");
 	}
+#endif
 
 	return delta;
 }

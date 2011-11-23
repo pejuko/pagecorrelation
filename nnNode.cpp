@@ -13,9 +13,11 @@ nnNode::nnNode(int input_size)
 	  m_lastResult(0.0),
 	  m_theta()
 {
+	double epsilon = 0.12;
+
 	for (int i=0; i<=input_size; i++) {
-		double r = float(random()) / RAND_MAX;
-		m_theta.push_back(r - 0.5);
+		double r = (float(random()) / RAND_MAX);
+		m_theta.push_back(r * 2 * epsilon - epsilon);
 	}
 }
 
@@ -39,18 +41,13 @@ std::vector<double> nnNode::learn(double err, double alpha, double gamma)
 	std::vector<double> delta;
 
 	for (int i=0; i<m_theta.size(); i++) {
-		delta.push_back(m_theta[i] * err);
+		delta.push_back(m_theta[i] * err * (m_lastResult * (1.0-m_lastResult)));
 	}
 
-	double reg = 0.0;
+	m_theta[0] -= alpha * delta[0] * m_lastResult;
 	for (int i=1; i<m_theta.size(); i++) {
-		reg += m_theta[i];
-	}
-	reg = (gamma * reg) / m_inputSize;
-
-	m_theta[0] += alpha * delta[0] * (m_lastResult * (1-m_lastResult));
-	for (int i=1; i<m_theta.size(); i++) {
-		m_theta[i] += alpha * delta[i] * (m_lastResult * (1-m_lastResult)) + reg;
+//		m_theta[i] -= alpha * delta[i] * m_lastResult + gamma*m_theta[i];
+		m_theta[i] -= alpha * err * m_lastResult + gamma*m_theta[i]/2.0;
 	}
 
 	return delta;

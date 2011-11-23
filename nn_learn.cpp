@@ -29,7 +29,8 @@ int main(int argc, char **argv)
 		fs.close();
 		nn = new NN("data.nn");
 	} else {
-		nn = new NN(80000, 2, 20, 40);
+		//nn = new NN(80000, 2, 5, 40);
+		nn = new NN(80000, 2, 1, 10);
 	}
 
 	std::string img_dir(argv[3]);
@@ -50,13 +51,14 @@ int main(int argc, char **argv)
 		std::string f1 = img_dir + "/" + number + "-1.tif";
 		std::string f2 = img_dir + "/" + number + "-2.tif";
 
-		std::cout << "f1: " << f1 << "   f2: " << f2 << std::endl;
-
 		std::vector<double> data = read_data(f1.c_str(), f2.c_str());
 
 		result[0] = same;
 		result[1] = bad;
-		nn->learn(data, result, alpha, gamma);
+		double err = nn->learn(data, result, alpha, gamma);
+
+		std::cout << "f1: " << f1 << "   f2: " << f2 << "   err: " << err << std::endl;
+//		std::cout << "f1: " << f1 << "   f2: " << f2 << std::endl;
 	}
 
 	nn->save("data.nn");

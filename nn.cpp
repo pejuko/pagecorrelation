@@ -31,21 +31,25 @@ std::vector<double> NN::process(std::vector<double> const& input)
 }
 
 
-void NN::learn(std::vector<double> const& input, std::vector<double> const& result, double alpha, double gamma)
+double NN::learn(std::vector<double> const& input, std::vector<double> const& result, double alpha, double gamma)
 {
 	assert(input.size() == m_inputSize);
 	assert(result.size() == m_outputSize);
 
+	double e=0.0;
 	std::vector<double> err;
 	std::vector<double> output = process(input);
 
 	for (int i=0; i<output.size(); i++) {
-		err.push_back(result[i] - output[i]);
+		err.push_back(output[i] - result[i]);
+		e += -1 * result[i]*log(output[i]) - (1.0-result[i])*log(1.0-output[i]);
 	}
 
 	for (int i=m_layers.size()-1; i>=0; i--) {
 		err = m_layers[i].learn(err, alpha, gamma);
 	}
+
+	return e;
 }
 
 

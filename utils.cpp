@@ -26,7 +26,7 @@ bool get_data(const char *f, std::vector<double> & output)
 	for (int y=0; y<pixs->h; y++) {
 		for (int x=0; x<pixs->w; x++) {
 			pixGetPixel(pixs, x, y, &val);
-			output.push_back(double(val));
+			output.push_back(double(val) / 255.0);
 		}
 	}
 

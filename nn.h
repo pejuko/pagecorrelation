@@ -10,7 +10,7 @@ class NN {
 		NN(const char *fname);
 
 		std::vector<double> process(std::vector<double> const& input);
-		void learn(std::vector<double> const& input, std::vector<double> const& result, double alpha=0.1, double gamma=1.0);
+		double learn(std::vector<double> const& input, std::vector<double> const& result, double alpha=0.1, double gamma=1.0);
 
 		bool save(const char *fname);
 		bool load(const char *fname);
