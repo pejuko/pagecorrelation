@@ -1,13 +1,13 @@
 PAGE_CORRELATION_SOURCES=page_correlation.c
 PAGE_CORRELATION_HEADERS=
-PAGE_CORRELATION_FLAGS=-O3
+PAGE_CORRELATION_FLAGS=-Ofast
 
 NN_SOURCES=nnNode.cpp nnLayer.cpp nn.cpp utils.cpp
 NN_HEADERS=nnNode.h nnLayer.h nn.h utils.h
 NN_COMPARE_SOURCES=${NN_SOURCES} nn_compare.cpp
-NN_COMPARE_FLAGS=-O3 -DNOT_VERBOSE_DEBUG=1 #-g
+NN_COMPARE_FLAGS=-Ofast -DNOT_VERBOSE_DEBUG=1 #-g
 NN_LEARN_SOURCES=${NN_SOURCES} nn_learn.cpp
-NN_LEARN_FLAGS=-O3 -DNOT_VERBOSE_DEBUG=1 #-g
+NN_LEARN_FLAGS=-Ofast -DNOT_VERBOSE_DEBUG=1
 
 all: page_correlation nn_compare nn_learn
 

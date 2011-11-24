@@ -46,6 +46,20 @@ std::vector<double> read_data(const char *f1, const char *f2)
 }
 
 
+void write_data(const char *f1, std::vector<double> data)
+{
+	PIX *pix = pixCreate(200,400,8);
+	assert(data.size() == 80001);
+	for (int y=0; y<400; y++) {
+		for (int x=0; x<200; x++) {
+			int val = (int)(data[y*200+x+1] * 255.0);
+			pixSetPixel(pix, x, y, val);
+		};
+	}
+	pixWriteTiff(f1, pix, IFF_TIFF_LZW, "w");
+}
+
+
 void print_result(std::vector<double> result, const char *f1, const char *f2)
 {
 	std::cout << f1 << " - " << f2;

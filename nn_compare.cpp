@@ -36,6 +36,7 @@ int main(int argc, char **argv)
 			compare(nn, f1.c_str(), f2.c_str());
 		}
 	} else {
+		nn.display("display_");
 		if (compare(nn, argv[1], argv[2]) >= 0.5)
 			return 0;
 		else

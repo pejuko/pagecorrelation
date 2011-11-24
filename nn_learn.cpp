@@ -30,15 +30,16 @@ int main(int argc, char **argv)
 		nn = new NN("data.nn");
 	} else {
 		//nn = new NN(80000, 2, 5, 40);
-		nn = new NN(80000, 2, 1, 10);
+		nn = new NN(80000, 1, 1, 100);
 	}
 
 	std::string img_dir(argv[3]);
 
 	std::vector<double> result;
 	result.push_back(0);
-	result.push_back(0);
+	//result.push_back(0);
 
+	int samples = 0;
 	std::cin.width(1024);
 	while (! std::cin.eof()) {
 		int same=0, bad=0;
@@ -54,8 +55,13 @@ int main(int argc, char **argv)
 		std::vector<double> data = read_data(f1.c_str(), f2.c_str());
 
 		result[0] = same;
-		result[1] = bad;
+		//result[1] = bad;
 		double err = nn->learn(data, result, alpha, gamma);
+
+		++samples;
+		if ((samples%1000) == 0) {
+			nn->save("data.nn");
+		}
 
 		std::cout << "f1: " << f1 << "   f2: " << f2 << "   err: " << err << std::endl;
 //		std::cout << "f1: " << f1 << "   f2: " << f2 << std::endl;

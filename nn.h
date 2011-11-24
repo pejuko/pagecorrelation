@@ -12,6 +12,7 @@ class NN {
 		std::vector<double> process(std::vector<double> const& input);
 		double learn(std::vector<double> const& input, std::vector<double> const& result, double alpha=0.1, double gamma=1.0);
 
+		bool display(const char *fbase);
 		bool save(const char *fname);
 		bool load(const char *fname);
 

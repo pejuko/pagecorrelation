@@ -1,8 +1,11 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <string>
 #include <vector>
 
+#include "utils.h"
 #include "nn.h"
 
 NN::NN(int input_size, int output_size, int hidden_layers, int layer_size)
@@ -50,6 +53,16 @@ double NN::learn(std::vector<double> const& input, std::vector<double> const& re
 	}
 
 	return e;
+}
+
+
+bool NN::display(const char *fbase)
+{
+	for (int i=0; i<m_layers[0].size(); i++) {
+		std::stringstream fname;
+		fname << fbase << i << ".tif";
+		write_data(fname.str().c_str(), m_layers[0].getNodes()[i].getTheta());
+	}
 }
 
 
