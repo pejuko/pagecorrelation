@@ -4,11 +4,11 @@ require "open3"
 
 alpha = 0.1
 alpha = ARGV[0].to_f if ARGV[0]
-gamma = 0.0
-gamma = ARGV[1].to_f if ARGV[1]
+lambda = 0.0
+lambda = ARGV[1].to_f if ARGV[1]
 thresh = 0.5
 thresh = ARGV[2].to_f if ARGV[2]
-p [alpha, gamma, thresh]
+p [alpha, lambda, thresh]
 cycles = 1
 cycles = ARGV[3].to_i if ARGV[3]
 
@@ -30,25 +30,27 @@ end
 j_all = []
 
   train_set = File.readlines(list_file).sort_by{rand}.map{|l| [l.strip!, l.split("\t")].flatten}
-  Open3.popen3("./nn_learn #{alpha} #{gamma} #{img_dir}") {|i,o,e,t|
+  Open3.popen3("./nn_learn #{alpha} #{lambda} #{img_dir}") {|i,o,e,t|
 cycles.times do |c|
   puts ""
   puts "Iteration: #{c+1}"
   err = 0.0
   errors = []
-    train_set.each do |row|
+    train_set.each_with_index do |row,ri|
       i << row[0] << "\n"
       result = o.gets
       result =~ /(\S+)$/
       err += $1.to_f
       errors << err
-      puts result
+      puts "#{c}:#{ri} #{result}"
     end
     err = err / errors.size;
     j_all << err
+    File.open('J_train.txt', 'w'){|f| f << j_all.join(",") << "\n"}
     puts "J_train = #{err}"
 end
   }
+  File.open('J_train.txt', 'w'){|f| f << j_all.join(",")}
   puts "J_train = #{j_all.inspect}"
   puts ""
   

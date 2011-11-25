@@ -41,13 +41,13 @@ Dir["sample*"].each do |dir|
   ]
 
   trlist = []
-  lists.each{|l| rbound = (trset*l.size).to_i; p rbound; trlist |= l[0..rbound]}
+  lists.each{|l| rbound = (trset*l.size).to_i; p rbound; trlist |= l[0...rbound]}
 
   telist = []
-  lists.each{|l| lbound = (trset*l.size).to_i; rbound = lbound + (teset*l.size).to_i; p [lbound, rbound]; telist |= l[lbound..rbound]}
+  lists.each{|l| lbound = (trset*l.size).to_i; rbound = lbound + (teset*l.size).to_i; p [lbound, rbound]; telist |= l[lbound...rbound]}
 
   crlist = []
-  lists.each{|l| lbound = (trset*l.size).to_i + (teset*l.size).to_i; rbound = lbound + (crset*l.size).to_i; p [lbound, rbound]; crlist |= l[lbound..rbound]}
+  lists.each{|l| lbound = (trset*l.size).to_i + (teset*l.size).to_i; rbound = lbound + (crset*l.size).to_i; p [lbound, rbound]; crlist |= l[lbound...rbound]}
 
   [[training_dir,trlist], [cross_dir, crlist], [test_dir,telist]].each do |dst, l|
     imgdir_dst = File.join(dst, 'img')

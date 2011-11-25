@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -11,46 +12,61 @@
 NN::NN(int input_size, int output_size, int hidden_layers, int layer_size)
 	: m_inputSize(input_size),
 	  m_outputSize(output_size),
-	  m_layers()
+	  m_size(hidden_layers+1)
 {
-	m_layers.push_back(nnLayer(input_size, layer_size));
-	for (int i=1; i<hidden_layers-1; i++) {
-		m_layers.push_back(nnLayer(layer_size, layer_size));
+	p_layers = (nnLayer**)malloc(sizeof(nnLayer*)*m_size);
+	p_layers[0] = new nnLayer(input_size, layer_size);
+	for (int i=1; i<hidden_layers; i++) {
+		p_layers[i] = new nnLayer(layer_size, layer_size);
 	}
-	m_layers.push_back(nnLayer(layer_size, output_size));
+	p_layers[m_size-1] = new nnLayer(layer_size, output_size);
 }
 
 
-std::vector<double> NN::process(std::vector<double> const& input)
+NN::~NN(void)
 {
-	assert(input.size() == m_inputSize);
+	for (int i=0; i<m_size; i++) {
+		delete p_layers[i];
+		p_layers[i] = 0;
+	}
+	free(p_layers);
+	p_layers = 0;
+}
 
-	std::vector<double> output = input;
-	for (int i=0; i<m_layers.size(); i++) {
-		output = m_layers[i].process(output);
+
+double *NN::process(double *input)
+{
+	double *output = input;
+	double *tmp;
+
+	for (int i=0; i<m_size; i++) {
+		tmp = p_layers[i]->process(output);
+		if (output != input) free(output);
+		output = tmp;
 	}
 
 	return output;
 }
 
 
-double NN::learn(std::vector<double> const& input, std::vector<double> const& result, double alpha, double gamma)
+double NN::learn(double *input, double *result, double alpha, double lambda)
 {
-	assert(input.size() == m_inputSize);
-	assert(result.size() == m_outputSize);
-
 	double e=0.0;
-	std::vector<double> err;
-	std::vector<double> output = process(input);
+	double *err = (double*)malloc(sizeof(double)*m_outputSize);
+	double *output = process(input);
 
-	for (int i=0; i<output.size(); i++) {
-		err.push_back(output[i] - result[i]);
+	for (int i=0; i<m_outputSize; i++) {
+		err[i] = output[i] - result[i];
 		e += -1 * result[i]*log(output[i]) - (1.0-result[i])*log(1.0-output[i]);
 	}
 
-	for (int i=m_layers.size()-1; i>=0; i--) {
-		err = m_layers[i].learn(err, alpha, gamma);
+	double *tmp;
+	for (int i=m_size-1; i>=0; i--) {
+		tmp = p_layers[i]->learn(err, alpha, lambda);
+		free(err);
+		err = tmp;
 	}
+	free(err);
 
 	return e;
 }
@@ -58,34 +74,43 @@ double NN::learn(std::vector<double> const& input, std::vector<double> const& re
 
 bool NN::display(const char *fbase)
 {
-	for (int i=0; i<m_layers[0].size(); i++) {
+	nnNode *node;
+	for (int i=0; i<p_layers[0]->size(); i++) {
 		std::stringstream fname;
 		fname << fbase << i << ".tif";
-		write_data(fname.str().c_str(), m_layers[0].getNodes()[i].getTheta());
+		node = p_layers[0]->getNodes()[i];
+		write_data(fname.str().c_str(), node->getTheta(), node->inputSize()+1);
 	}
 }
 
 
 bool NN::save(const char *fname)
 {
-	std::fstream fs;
-	fs.open(fname, std::fstream::out);
+	std::ofstream fs(fname, std::fstream::out | std::fstream::binary);
 
-	fs << "input_size " << m_layers[0].inputSize() << "\n";
-	fs << "output_size " << m_layers[m_layers.size()-1].size() << "\n";
-	fs << "layers " << m_layers.size() << "\n";
-	fs << m_layers[0].size();
-	for (int i=1; i<m_layers.size(); i++) {
-		fs << " " << m_layers[i].size();
+	fs << "double_size " << sizeof(double) << std::endl;
+	fs << "input_size " << p_layers[0]->inputSize() << "\n";
+	fs << "output_size " << p_layers[m_size-1]->size() << "\n";
+	fs << "layers " << m_size << "\n";
+	fs << p_layers[0]->size();
+	for (int i=1; i<m_size; i++) {
+		fs << " " << p_layers[i]->size();
 	}
 	fs << "\n";
 
-	for (int i=0; i<m_layers.size(); i++) {
-		std::vector<nnNode> const& nodes = m_layers[i].getNodes();
-		for (int n=0; n<nodes.size(); n++) {
-			std::vector<double> const& theta = nodes[n].getTheta();
-			for (int t=0; t<theta.size(); t++) {
-				fs << theta[t] << "\n";
+
+	nnNode **nodes;
+	double *theta;
+	for (int i=0; i<m_size; i++) {
+		nodes = p_layers[i]->getNodes();
+#ifndef NOT_VERBOSE_DEBUG
+		std::cout << nodes[0]->getTheta(0) << std::endl;
+#endif
+		for (int n=0; n<p_layers[i]->size(); n++) {
+			theta = nodes[n]->getTheta();
+			for (int t=0; t<(nodes[n]->inputSize()+1); t++) {
+				//fs << theta[t] << "\n";
+				fs.write((const char*)(&theta[t]), sizeof(double));
 			}
 		}
 	}
@@ -98,69 +123,57 @@ bool NN::save(const char *fname)
 NN::NN(const char *fname)
 	: m_inputSize(0),
 	  m_outputSize(0),
-	  m_layers()
+	  m_size(0)
 {
-	std::fstream fs;
-	fs.open(fname, std::fstream::in);
+	std::ifstream fs(fname, std::ifstream::in | std::ifstream::binary );
 	fs.width (25);
 
 	char name[26];
 	int layers;
 	int layer_size;
+	int double_size;
 
 	fs >> name;
-#ifndef NOT_VERBOSE_DEBUG
-	std::cout << "'" << name << "'" << std::endl;
-#endif
+	fs >> double_size;
+	assert(double_size == sizeof(double));
+
+	fs >> name;
 	fs >> m_inputSize;
 
 	fs >> name;
-#ifndef NOT_VERBOSE_DEBUG
-	std::cout << name << std::endl;
-#endif
 	fs >> m_outputSize;
 
 	fs >> name;
-#ifndef NOT_VERBOSE_DEBUG
-	std::cout << name << std::endl;
-#endif
-	fs >> layers;
+	fs >> m_size;
 
-#ifndef NOT_VERBOSE_DEBUG
-	std::cout << m_inputSize << " " << m_outputSize << " " << layers << "\n";
-#endif
+	p_layers = (nnLayer**)malloc(sizeof(nnLayer*)*m_size);
 
 	int prev_size = m_inputSize;
-	for (int i=0; i<layers; i++) {
+	for (int i=0; i<m_size; i++) {
 		fs >> layer_size;
-#ifndef NOT_VERBOSE_DEBUG
-		std::cout << layer_size << std::endl;
-#endif
-		m_layers.push_back(nnLayer(prev_size, layer_size));
+		p_layers[i] = new nnLayer(prev_size, layer_size);
 		prev_size = layer_size;
 	}
 
-#ifndef NOT_VERBOSE_DEBUG
-	std::cout << "layers: " << m_layers.size() << std::endl;
-#endif
-
 	double theta;
-	for (int i=0; i<m_layers.size(); i++) {
-		std::vector<nnNode> nodes = m_layers[i].getNodes();
+	nnNode **nodes;
+	fs.seekg(1, std::ios_base::cur); // '\n'
+	for (int i=0; i<m_size; i++) {
+		nodes = p_layers[i]->getNodes();
 #ifndef NOT_VERBOSE_DEBUG
 		std::cout << "nodes: " << nodes.size() << " " << nodes[0].inputSize() << std::endl;
 #endif
-		for (int n=0; n<nodes.size(); n++) {
-			int tSize = nodes[n].getTheta().size();
+		for (int n=0; n<p_layers[i]->size(); n++) {
+			int tSize = nodes[n]->inputSize()+1;
 			for (int t=0; t<tSize; t++) {
-				fs >> theta;
-#ifndef NOT_VERBOSE_DEBUG
-				if (t==0)
-					std::cout << theta << std::endl;
-#endif
-				m_layers[i].setTheta(n, t, theta);
+				//fs >> theta;
+				fs.read((char*)(&theta), double_size);
+				p_layers[i]->setTheta(n, t, theta);
 			}
 		}
+#ifndef NOT_VERBOSE_DEBUG
+		std::cout << nodes[0]->getTheta(0) << std::endl;
+#endif
 	}
 
 	fs.close();

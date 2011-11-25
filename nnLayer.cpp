@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 #include <cassert>
 #include <iostream>
 #include "nnLayer.h"
@@ -6,60 +7,61 @@
 
 nnLayer::nnLayer(int input_size, int number_nodes)
 	: m_inputSize(input_size),
-	  m_nodes()
+	  m_size(number_nodes)
 {
-	for (int i=0; i<number_nodes; i++) {
-		m_nodes.push_back(nnNode(input_size));
+	p_nodes = (nnNode**)malloc(sizeof(nnNode*)*m_size);
+	for (int i=0; i<m_size; i++) {
+		p_nodes[i] = new nnNode(input_size);
 	}
 }
 
 
-std::vector<double> nnLayer::process(std::vector<double> const& input)
+nnLayer::~nnLayer(void)
 {
-	assert(input.size() == m_inputSize);
+	for (int i=0; i<m_size; i++) {
+		delete p_nodes[i];
+		p_nodes[i] = 0;
+	}
+	free(p_nodes);
+	p_nodes = 0;
+}
 
-	std::vector<double> output;
-	for (int i=0; i<m_nodes.size(); i++) {
-		output.push_back(m_nodes[i].process(input));
+
+double *nnLayer::process(double *input)
+{
+	double *output = (double*)malloc(sizeof(double)*m_size);
+
+	for (int i=0; i<m_size; i++) {
+		output[i] = p_nodes[i]->process(input);
 	}
 
 	return output;
 }
 
 
-std::vector<double> nnLayer::learn(std::vector<double> err, double alpha, double gamma)
+double *nnLayer::learn(double *err, double alpha, double lambda)
 {
-	std::vector<std::vector<double> > e;
-	for (int i=0; i<m_nodes.size(); i++) {
-		e.push_back(m_nodes[i].learn(err[i], alpha, gamma));
+	double **e = (double**)malloc(sizeof(double*)*m_size);
+
+	for (int i=0; i<m_size; i++) {
+		e[i] = p_nodes[i]->learn(err[i], alpha, lambda);
 	}
 
-	int rows = e.size();
-	int cols = e[0].size();
-#ifndef NOT_VERBOSE_DEBUG
-	std::cout << "rows: " << rows << "cols: " << cols << std::endl;
-#endif
-	std::vector<double> delta;
-	for (int c=1; c<cols; c++) {
-		double d = 0.0;
-		for (int r=0; r<rows; r++) {
+	int cols = m_inputSize;
+	double *delta = (double*)malloc(sizeof(double)*(cols-1));
+	double d;
+	int c, r;
+	for (c=1; c<cols; c++) {
+		d = 0.0;
+		for (r=0; r<m_size; r++) {
 			d += e[r][c];
 		}
-		delta.push_back(d);
+		delta[c-1] = d;
 	}
-#ifndef NOT_VERBOSE_DEBUG
-	std::cout << "delta: " << delta.size() << std::endl;
-#endif
-
-#ifndef NOT_VERBOSE_DEBUG
-	//printf ("deltas: %d\n", delta.size());
-	if (delta.size() < 20) {
-		for (int i=0; i<delta.size(); i++) {
-			printf(" %f ", delta[i]);
-		}
-		printf ("\n");
+	for (int r=0; r<m_size; r++) {
+		free(e[r]);
 	}
-#endif
+	free(e);
 
 	return delta;
 }

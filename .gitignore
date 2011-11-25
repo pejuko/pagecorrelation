@@ -1,6 +1,7 @@
 page_correlation
 nn_compare
 nn_learn
+nn_get_theta
 samples*
 training-set
 test-set
@@ -11,3 +12,5 @@ test-set
 set-*
 data*
 core
+J_train.txt
+

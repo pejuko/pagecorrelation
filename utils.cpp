@@ -8,7 +8,7 @@ extern "C" {
 #include "utils.h"
 
 
-bool get_data(const char *f, std::vector<double> & output)
+bool get_data(const char *f, double *output)
 {
 	PIX *pix = pixRead(f);
 	assert(pix != NULL);
@@ -26,7 +26,7 @@ bool get_data(const char *f, std::vector<double> & output)
 	for (int y=0; y<pixs->h; y++) {
 		for (int x=0; x<pixs->w; x++) {
 			pixGetPixel(pixs, x, y, &val);
-			output.push_back(double(val) / 255.0);
+			output[y*pixs->w + x] = double(val) / 255.0;
 		}
 	}
 
@@ -35,9 +35,9 @@ bool get_data(const char *f, std::vector<double> & output)
 	return true;
 }
 
-std::vector<double> read_data(const char *f1, const char *f2)
+double *read_data(const char *f1, const char *f2)
 {
-	std::vector<double> output;
+	double *output = (double*)malloc(sizeof(double)*200*200*2);
 
 	get_data(f1, output);
 	get_data(f2, output);
@@ -46,10 +46,10 @@ std::vector<double> read_data(const char *f1, const char *f2)
 }
 
 
-void write_data(const char *f1, std::vector<double> data)
+void write_data(const char *f1, double *data, int size)
 {
 	PIX *pix = pixCreate(200,400,8);
-	assert(data.size() == 80001);
+	assert(size == 80001);
 	for (int y=0; y<400; y++) {
 		for (int x=0; x<200; x++) {
 			int val = (int)(data[y*200+x+1] * 255.0);
@@ -57,13 +57,14 @@ void write_data(const char *f1, std::vector<double> data)
 		};
 	}
 	pixWriteTiff(f1, pix, IFF_TIFF_LZW, "w");
+	pixDestroy(&pix);
 }
 
 
-void print_result(std::vector<double> result, const char *f1, const char *f2)
+void print_result(double *result, int size, const char *f1, const char *f2)
 {
 	std::cout << f1 << " - " << f2;
-	for (int i=0; i<result.size(); i++) {
+	for (int i=0; i<size; i++) {
 		//int r = result[i] < 0.5 ? 0 : 1;
 		double r = result[i];
 		std::cout << "   " << r;

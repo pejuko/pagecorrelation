@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
 	if (argc != 4) {
-		std::cout << "Usage: nn_learn <alpha> <gamma> <image_dir>" << std::endl;
+		std::cout << "Usage: nn_learn <alpha> <lambda> <image_dir>" << std::endl;
 		std::cout << "Example: cat set-train/list.txt | nn_learn 0.1 0.0 set-train/img/" << std::endl;
 		std::cout << "It reads and update 'data.nn' file" << std::endl;
 		return 1;
@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 
 	NN *nn;
 	double alpha = atof(argv[1]);
-	double gamma = atof(argv[2]);
+	double lambda = atof(argv[2]);
 
 	srandom( clock() + time(NULL) );
 
@@ -30,14 +30,12 @@ int main(int argc, char **argv)
 		nn = new NN("data.nn");
 	} else {
 		//nn = new NN(80000, 2, 5, 40);
-		nn = new NN(80000, 1, 1, 100);
+		nn = new NN(80000, 1, 3, 30);
 	}
 
 	std::string img_dir(argv[3]);
 
-	std::vector<double> result;
-	result.push_back(0);
-	//result.push_back(0);
+	double *result = (double*)malloc(sizeof(double)*nn->outputSize());
 
 	int samples = 0;
 	std::cin.width(1024);
@@ -52,11 +50,12 @@ int main(int argc, char **argv)
 		std::string f1 = img_dir + "/" + number + "-1.tif";
 		std::string f2 = img_dir + "/" + number + "-2.tif";
 
-		std::vector<double> data = read_data(f1.c_str(), f2.c_str());
 
 		result[0] = same;
 		//result[1] = bad;
-		double err = nn->learn(data, result, alpha, gamma);
+		double *data = read_data(f1.c_str(), f2.c_str());
+		double err = nn->learn(data, result, alpha, lambda);
+		free(data);
 
 		++samples;
 		if ((samples%1000) == 0) {
@@ -66,6 +65,8 @@ int main(int argc, char **argv)
 		std::cout << "f1: " << f1 << "   f2: " << f2 << "   err: " << err << std::endl;
 //		std::cout << "f1: " << f1 << "   f2: " << f2 << std::endl;
 	}
+
+	free(result);
 
 	nn->save("data.nn");
 	delete nn;

@@ -8,12 +8,15 @@
 #include "utils.h"
 
 
-int compare(NN & nn, const char *f1, const char *f2)
+int compare(NN *nn, const char *f1, const char *f2)
 {
-	std::vector<double> data = read_data(f1, f2);
-	std::vector<double> result = nn.process(data);
+	double *data = read_data(f1, f2);
+	double *result = nn->process(data);
 
-	print_result(result, f1, f2);
+	print_result(result, nn->outputSize(), f1, f2);
+
+	free(data);
+	free(result);
 }
 
 int main(int argc, char **argv)
@@ -25,7 +28,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	
-	NN nn = NN("data.nn");
+	NN nn("data.nn");
 
 	if (argv[1][0] == '-') {
 		while (! std::cin.eof()) {
@@ -33,11 +36,11 @@ int main(int argc, char **argv)
 			std::cin >> f1 >> f2;
 			if (f1.empty() || f2.empty())
 				continue;
-			compare(nn, f1.c_str(), f2.c_str());
+			compare(&nn, f1.c_str(), f2.c_str());
 		}
 	} else {
 		nn.display("display_");
-		if (compare(nn, argv[1], argv[2]) >= 0.5)
+		if (compare(&nn, argv[1], argv[2]) >= 0.5)
 			return 0;
 		else
 			return 1;
