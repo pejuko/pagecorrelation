@@ -1,7 +1,7 @@
 #ifndef __NN_NODE_H_
 #define __NN_NODE_H_
 
-#include <cmath>
+#include "utils.h"
 
 class nnNode {
 	public:
@@ -18,7 +18,7 @@ class nnNode {
 		void setTheta(int i, double value) { p_theta[i] = value; };
 
 	private:
-		double g(double f) const { return 1.0/(1+exp(-1*f)); };
+		double g(double f) const { return NORM_DOUBLE(1.0/(1+exp(-1*f))); };
 
 		int m_inputSize;
 		double m_alpha;

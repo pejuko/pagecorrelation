@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 		nn = new NN("data.nn");
 	} else {
 		//nn = new NN(80000, 2, 5, 40);
-		nn = new NN(80000, 1, 3, 30);
+		nn = new NN(80000, 1, 2, 30);
 	}
 
 	std::string img_dir(argv[3]);

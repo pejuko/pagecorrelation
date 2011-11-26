@@ -4,7 +4,10 @@
 #include <cstdlib>
 #include <vector>
 
+#include <math.h>
+
 #include "nnNode.h"
+#include "utils.h"
 
 
 nnNode::nnNode(int input_size)
@@ -46,19 +49,20 @@ double *nnNode::learn(double err, double alpha, double lambda)
 {
 	int i;
 
-	double e = err/double(m_inputSize);
+	//double e = err/double(m_inputSize);
+	double e = err;
 	double *delta = (double*)malloc(sizeof(double)*(m_inputSize+1));
-	double g_deriv = m_lastResult * (1.0-m_lastResult);
+	double g_deriv = NORM_DOUBLE(m_lastResult * (1.0-m_lastResult));
 
 	for (i=0; i<(m_inputSize+1); i++) {
-		delta[i] = p_theta[i] * e * g_deriv;
+		delta[i] = NORM_DOUBLE(p_theta[i] * e * g_deriv);
 	}
 
-	double alpha_d = alpha * err * m_lastResult;
+	double alpha_d = NORM_DOUBLE(alpha * err * m_lastResult);
 	p_theta[0] -= alpha_d;
 
 	for (i=1; i<(m_inputSize+1); i++) {
-		p_theta[i] -= alpha_d + lambda*p_theta[i];
+		p_theta[i] = NORM_DOUBLE(p_theta[i] - alpha_d + lambda*p_theta[i]);
 	}
 
 	return delta;

@@ -2,7 +2,9 @@
 #include <cstdlib>
 #include <cassert>
 #include <iostream>
+
 #include "nnLayer.h"
+#include "utils.h"
 
 
 nnLayer::nnLayer(int input_size, int number_nodes)
@@ -54,7 +56,7 @@ double *nnLayer::learn(double *err, double alpha, double lambda)
 	for (c=1; c<cols; c++) {
 		d = 0.0;
 		for (r=0; r<m_size; r++) {
-			d += e[r][c];
+			d = NORM_DOUBLE(d + e[r][c]);
 		}
 		delta[c-1] = d;
 	}
