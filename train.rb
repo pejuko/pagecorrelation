@@ -61,4 +61,4 @@ end
   puts "J_train = #{j_all.inspect}"
   puts ""
   
-require 'test.rb'
+system "./test.rb", test_dir, "#{thresh}"

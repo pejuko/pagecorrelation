@@ -1,10 +1,11 @@
+#!/usr/bin/env ruby
+
+test_dir = "set-cross"
+
 if __FILE__ == $0
   require 'open3'
 
-  test_dir = "set-cross"
   test_dir = ARGV[0] if ARGV[0]
-  cross_img_dir = File.join test_dir, "img"
-  test_list_file = File.join test_dir, "list.txt"
 
   thresh = 0.5
   thresh = ARGV[1].to_f if ARGV[1]
@@ -13,6 +14,10 @@ if __FILE__ == $0
     result.map{|r| r>=t ? 1 : 0}
   end
 end
+
+cross_img_dir = File.join test_dir, "img"
+test_list_file = File.join test_dir, "list.txt"
+
 
   j_all = []
   errors = []
