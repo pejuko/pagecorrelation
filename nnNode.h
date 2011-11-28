@@ -9,7 +9,8 @@ class nnNode {
 		~nnNode(void);
 
 		double process(double *input);
-		double *learn(double err, double alpha=0.1, double lambda=1.0);
+		double *learn(double err);
+		double update(int m, double alpha=0.1, double lambda=1.0);
 
 		int inputSize() const { return m_inputSize; };
 		double *getTheta(void) { return p_theta; };
@@ -21,10 +22,9 @@ class nnNode {
 		double g(double f) const { return NORM_DOUBLE(1.0/(1+exp(-1*f))); };
 
 		int m_inputSize;
-		double m_alpha;
-		double m_error;
 		double m_lastResult;
 		double *p_theta;
+		double *p_grad;
 };
 
 #endif

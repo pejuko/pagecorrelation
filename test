@@ -1,0 +1,9 @@
+#!/bin/sh
+
+dir=$1
+
+if [ -z "$dir" ]; then
+	dir="set-train"
+fi
+
+cut -f1 < ${dir}/list.txt | sed "s/\(.*\)/${dir}\/img\/\1-1.tif ${dir}\/img\/\1-2.tif/" | ./nn_compare  -

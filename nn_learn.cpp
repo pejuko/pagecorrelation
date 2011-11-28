@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 		nn = new NN("data.nn");
 	} else {
 		//nn = new NN(80000, 2, 5, 40);
-		nn = new NN(80000, 1, 2, 30);
+		nn = new NN(80000, 1, 5, 30);
 	}
 
 	std::string img_dir(argv[3]);
@@ -38,14 +38,29 @@ int main(int argc, char **argv)
 	double *result = (double*)malloc(sizeof(double)*nn->outputSize());
 
 	int samples = 0;
+	int iteration = 0;
+	double e = 0.0;
 	std::cin.width(1024);
 	while (! std::cin.eof()) {
 		int same=0, bad=0;
 		std::string number;
 
-		std::cin >> number >> same >> bad;
+		std::cin >> number;
 		if (number.empty())
 			break;
+
+		if (number == "update") {
+			double st = nn->squaredTheta();
+			e = (e + (lambda/2)*st) / samples;
+			std::cout << "J = " << e << std::endl;
+			nn->update(samples, alpha, lambda);
+			nn->save("data.nn");
+			samples = 0;
+			e = 0.0;
+			++iteration;
+			continue;
+		}
+		std::cin >> same >> bad;
 
 		std::string f1 = img_dir + "/" + number + "-1.tif";
 		std::string f2 = img_dir + "/" + number + "-2.tif";
@@ -54,13 +69,11 @@ int main(int argc, char **argv)
 		result[0] = same;
 		//result[1] = bad;
 		double *data = read_data(f1.c_str(), f2.c_str());
-		double err = nn->learn(data, result, alpha, lambda);
+		double err = nn->learn(data, result);
+		e += err;
 		free(data);
 
 		++samples;
-		if ((samples%1000) == 0) {
-			nn->save("data.nn");
-		}
 
 		std::cout << "f1: " << f1 << "   f2: " << f2 << "   err: " << err << std::endl;
 //		std::cout << "f1: " << f1 << "   f2: " << f2 << std::endl;
@@ -68,6 +81,8 @@ int main(int argc, char **argv)
 
 	free(result);
 
+	if (samples > 0)
+		nn->update(samples, alpha, lambda);
 	nn->save("data.nn");
 	delete nn;
 

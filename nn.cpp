@@ -49,7 +49,7 @@ double *NN::process(double *input)
 }
 
 
-double NN::learn(double *input, double *result, double alpha, double lambda)
+double NN::learn(double *input, double *result)
 {
 	double e=0.0;
 	double *err = (double*)malloc(sizeof(double)*m_outputSize);
@@ -62,13 +62,39 @@ double NN::learn(double *input, double *result, double alpha, double lambda)
 
 	double *tmp;
 	for (int i=m_size-1; i>=0; i--) {
-		tmp = p_layers[i]->learn(err, alpha, lambda);
+		tmp = p_layers[i]->learn(err);
 		free(err);
 		err = tmp;
 	}
 	free(err);
 
 	return e;
+}
+
+
+double NN::update(int m, double alpha, double lambda)
+{
+	for (int l=0; l<m_size; l++) {
+		p_layers[l]->update(m, alpha, lambda);
+	}
+}
+
+
+double NN::squaredTheta(void) const
+{
+	nnNode **nodes;
+	double *theta;
+	double st = 0.0;
+	for (int i=0; i<m_size; i++) {
+		nodes = p_layers[i]->getNodes();
+		for (int n=0; n<p_layers[i]->size(); n++) {
+			theta = nodes[n]->getTheta();
+			for (int t=1; t<(nodes[n]->inputSize()+1); t++) {
+				st += theta[t] * theta[t];
+			}
+		}
+	}
+	return st;
 }
 
 

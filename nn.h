@@ -11,7 +11,8 @@ class NN {
 		~NN(void);
 
 		double *process(double *input);
-		double learn(double *input, double *result, double alpha=0.1, double gamma=1.0);
+		double learn(double *input, double *result);
+		double update(int m, double alpha, double lambda);
 
 		bool display(const char *fbase);
 		bool save(const char *fname);
@@ -20,7 +21,9 @@ class NN {
 		int inputSize(void) const { return m_inputSize; };
 		int outputSize(void) const { return m_outputSize; };
 		int size(void) const { return m_size; };
+
 		nnLayer **getLayers(void) { return p_layers; };
+		double squaredTheta(void) const;
 
 	private:
 		int m_inputSize;

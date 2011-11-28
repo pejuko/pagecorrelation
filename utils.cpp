@@ -18,6 +18,9 @@ bool get_data(const char *f, double *output)
 	pix8 = pixConvertTo8(pixg, FALSE);
 	pixs = pixScaleToSize(pix8, 200, 200);
 
+	assert(pixs->w == 200);
+	assert(pixs->h == 200);
+
 	pixDestroy(&pix);
 	pixDestroy(&pixg);
 	pixDestroy(&pix8);
@@ -38,6 +41,9 @@ bool get_data(const char *f, double *output)
 double *read_data(const char *f1, const char *f2)
 {
 	double *output = (double*)malloc(sizeof(double)*200*200*2);
+	for (int i=0; i<200*200*2; i++) {
+		output[i] = 0.5;
+	}
 
 	get_data(f1, output);
 	get_data(f2, output);

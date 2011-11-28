@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <vector>
+#include <iostream>
 
 #include <math.h>
 
@@ -12,16 +12,17 @@
 
 nnNode::nnNode(int input_size)
 	: m_inputSize(input_size),
-	  m_error(0.0),
 	  m_lastResult(0.0)
 {
 	p_theta = (double*)malloc(sizeof(double)*(m_inputSize+1));
+	p_grad = (double*)malloc(sizeof(double)*(m_inputSize+1));
 
 	double r;
 	double epsilon = 0.12;
 	for (int i=0; i<=input_size; i++) {
 		r = (float(random()) / RAND_MAX);
 		p_theta[i] = r * 2 * epsilon - epsilon;
+		p_grad[i] = 0.0;
 	}
 }
 
@@ -29,6 +30,8 @@ nnNode::~nnNode(void)
 {
 	free(p_theta);
 	p_theta = 0;
+	free(p_grad);
+	p_grad = 0;
 }
 
 
@@ -45,7 +48,7 @@ double nnNode::process(double *input)
 }
 
 
-double *nnNode::learn(double err, double alpha, double lambda)
+double *nnNode::learn(double err)
 {
 	int i;
 
@@ -53,17 +56,30 @@ double *nnNode::learn(double err, double alpha, double lambda)
 	double e = err;
 	double *delta = (double*)malloc(sizeof(double)*(m_inputSize+1));
 	double g_deriv = NORM_DOUBLE(m_lastResult * (1.0-m_lastResult));
+	double grad = m_lastResult * err;
 
 	for (i=0; i<(m_inputSize+1); i++) {
 		delta[i] = NORM_DOUBLE(p_theta[i] * e * g_deriv);
+		p_grad[i] += grad;
 	}
 
-	double alpha_d = NORM_DOUBLE(alpha * err * m_lastResult);
-	p_theta[0] -= alpha_d;
+//	double alpha_d = NORM_DOUBLE(alpha * err * m_lastResult);
+//	p_theta[0] -= alpha_d;
 
-	for (i=1; i<(m_inputSize+1); i++) {
-		p_theta[i] = NORM_DOUBLE(p_theta[i] - alpha_d + lambda*p_theta[i]);
-	}
+//	for (i=1; i<(m_inputSize+1); i++) {
+//		p_theta[i] = NORM_DOUBLE(p_theta[i] - alpha_d + lambda*p_theta[i]);
+//	}
 
 	return delta;
+}
+
+
+double nnNode::update(int m, double alpha, double lambda)
+{
+	p_theta[0] -= alpha * (p_grad[0]/m);
+	p_grad[0] = 0.0;
+	for (int i=1; i<m_inputSize+1; i++) {
+		p_theta[i] -= alpha * ((p_grad[i] + lambda * p_theta[i]) / m);
+		p_grad[i] = 0.0;
+	}
 }

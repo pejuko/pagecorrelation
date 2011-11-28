@@ -18,6 +18,14 @@ nnLayer::nnLayer(int input_size, int number_nodes)
 }
 
 
+double nnLayer::update(int m, double alpha, double lambda)
+{
+	for (int n=0; n<m_size; n++) {
+		p_nodes[n]->update(m, alpha, lambda);
+	}
+}
+
+
 nnLayer::~nnLayer(void)
 {
 	for (int i=0; i<m_size; i++) {
@@ -41,12 +49,12 @@ double *nnLayer::process(double *input)
 }
 
 
-double *nnLayer::learn(double *err, double alpha, double lambda)
+double *nnLayer::learn(double *err)
 {
 	double **e = (double**)malloc(sizeof(double*)*m_size);
 
 	for (int i=0; i<m_size; i++) {
-		e[i] = p_nodes[i]->learn(err[i], alpha, lambda);
+		e[i] = p_nodes[i]->learn(err[i]);
 	}
 
 	int cols = m_inputSize;
