@@ -64,7 +64,7 @@ double *nnLayer::learn(double *err)
 	for (c=1; c<cols; c++) {
 		d = 0.0;
 		for (r=0; r<m_size; r++) {
-			d = NORM_DOUBLE(d + e[r][c]);
+			d = NORM_DOUBLE(d, d + e[r][c]);
 		}
 		delta[c-1] = d;
 	}

@@ -1,6 +1,7 @@
 #ifndef __NN_NODE_H_
 #define __NN_NODE_H_
 
+#include <cstdlib>
 #include "utils.h"
 
 class nnNode {
@@ -19,7 +20,11 @@ class nnNode {
 		void setTheta(int i, double value) { p_theta[i] = value; };
 
 	private:
-		double g(double f) const { return NORM_DOUBLE(1.0/(1+exp(-1*f))); };
+		double g(double f) const { return 1.0/(1+exp(-1*f)); };
+		double genTheta(double epsilon=0.12) const {
+			double r = (float(random()) / RAND_MAX);
+			return r * 2 * epsilon - epsilon;
+		};
 
 		int m_inputSize;
 		double m_lastResult;

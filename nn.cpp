@@ -39,6 +39,13 @@ double *NN::process(double *input)
 	double *output = input;
 	double *tmp;
 
+	/*
+	for (int i=0; i<m_inputSize; i++) {
+		if (isnan(input[i]))
+			std::cout << "nan" << std::endl;
+	}
+	*/
+
 	for (int i=0; i<m_size; i++) {
 		tmp = p_layers[i]->process(output);
 		if (output != input) free(output);
@@ -91,6 +98,12 @@ double NN::squaredTheta(void) const
 			theta = nodes[n]->getTheta();
 			for (int t=1; t<(nodes[n]->inputSize()+1); t++) {
 				st += theta[t] * theta[t];
+				/*
+				if (isinf(st)) {
+					std::cout << "theta[t]: " << theta[t] << std::endl;
+				}
+				assert(! isinf(st));
+				*/
 			}
 		}
 	}

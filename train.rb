@@ -43,6 +43,10 @@ cycles.times do |c|
     train_set.each_with_index do |row,ri|
       i << row[0] << "\n"
       result = o.gets
+      unless result =~ /^f1/
+        puts result
+        next
+      end
       result =~ /(\S+)$/
       err += $1.to_f
       errors << err
@@ -50,6 +54,8 @@ cycles.times do |c|
     end
     puts "updating..."
     i << "update" << "\n"
+    puts o.gets
+    puts o.gets
     o.gets =~ /(\S+)$/
     err = $1.to_f
     j_all << err

@@ -30,7 +30,7 @@ test_list_file = File.join test_dir, "list.txt"
   true_negative = Array.new(klasses, 0)
   false_negative = Array.new(klasses, 0)
   Open3.popen3("./nn_compare -") {|i,o,e,t|
-  cross_set.each do |row|
+  cross_set.each_with_index do |row, samples|
     f1 = File.join cross_img_dir, "#{row[1]}-1.tif"
     f2 = File.join cross_img_dir, "#{row[1]}-2.tif"
     i << "#{f1} #{f2}\n"
@@ -47,7 +47,7 @@ test_list_file = File.join test_dir, "list.txt"
       true_negative[idx] += 1 if out==0 and t[idx]==0
       false_negative[idx] += 1 if out==0 and t[idx]==1
     end
-    puts "#{row[1]} #{row[2..-1].inspect} #{t.inspect} (#{res[1..-1].join(", ")}) #{err.inspect}"
+    puts "#{row[1]} #{row[2..-1].inspect} #{t.inspect} (#{res[1..-1].join(", ")}) #{err.map{|e| e/samples}.inspect}"
     matches += 1 if ce==0.0
     errors << err if err[0] != Float::NAN and err[1] != Float::NAN
   end

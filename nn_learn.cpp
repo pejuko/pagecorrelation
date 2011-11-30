@@ -22,6 +22,7 @@ int main(int argc, char **argv)
 	double lambda = atof(argv[2]);
 
 	srandom( clock() + time(NULL) );
+	std::cout.precision(10);
 
 	std::fstream fs;
 	fs.open("data.nn");
@@ -30,7 +31,7 @@ int main(int argc, char **argv)
 		nn = new NN("data.nn");
 	} else {
 		//nn = new NN(80000, 2, 5, 40);
-		nn = new NN(80000, 1, 5, 30);
+		nn = new NN(80000, 1, 10, 40);
 	}
 
 	std::string img_dir(argv[3]);
@@ -51,6 +52,8 @@ int main(int argc, char **argv)
 
 		if (number == "update") {
 			double st = nn->squaredTheta();
+			std::cout << "e: " << e << std::endl;
+			std::cout << "st: " << st << std::endl;
 			e = (e + (lambda/2)*st) / samples;
 			std::cout << "J = " << e << std::endl;
 			nn->update(samples, alpha, lambda);

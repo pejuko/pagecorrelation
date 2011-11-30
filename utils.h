@@ -4,8 +4,7 @@
 #include <math.h>
 
 //#define NORM_DOUBLE(x) (isnormal(x) ? (x) : (isnan(x) ? 0.0 : (isinf(x) ? 1.0 : x)))
-//#define NORM_DOUBLE(x) (isnan(x) ? 0.0 : (isinf(x) ? 1.0 : x))
-#define NORM_DOUBLE(x) (x)
+#define NORM_DOUBLE(x, y) ((isnan(y) || isinf(y)) ? (x) : (y))
 
 extern bool get_data(const char *f, double *output);
 extern double *read_data(const char *f1, const char *f2);

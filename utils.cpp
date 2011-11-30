@@ -29,7 +29,7 @@ bool get_data(const char *f, double *output)
 	for (int y=0; y<pixs->h; y++) {
 		for (int x=0; x<pixs->w; x++) {
 			pixGetPixel(pixs, x, y, &val);
-			output[y*pixs->w + x] = double(val) / 255.0;
+			output[y*pixs->w + x] = 1.0 - (double(val) / 255.0);
 		}
 	}
 

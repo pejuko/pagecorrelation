@@ -17,5 +17,7 @@ int main (int argc, char **argv)
 		}
 	}
 
+	std::cout << "Squared: " << nn.squaredTheta() << std::endl;
+
 	return 0;
 }

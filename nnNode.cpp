@@ -17,11 +17,8 @@ nnNode::nnNode(int input_size)
 	p_theta = (double*)malloc(sizeof(double)*(m_inputSize+1));
 	p_grad = (double*)malloc(sizeof(double)*(m_inputSize+1));
 
-	double r;
-	double epsilon = 0.12;
 	for (int i=0; i<=input_size; i++) {
-		r = (float(random()) / RAND_MAX);
-		p_theta[i] = r * 2 * epsilon - epsilon;
+		p_theta[i] = genTheta();
 		p_grad[i] = 0.0;
 	}
 }
@@ -39,7 +36,7 @@ double nnNode::process(double *input)
 {
 	double result = p_theta[0];
 	for (int i=0; i<m_inputSize; i++) {
-		result += p_theta[i+1] * input[i];
+		result = NORM_DOUBLE(result, result + p_theta[i+1] * input[i]);
 	}
 
 	//m_lastResult = g(result);
@@ -52,15 +49,13 @@ double *nnNode::learn(double err)
 {
 	int i;
 
-	//double e = err/double(m_inputSize);
-	double e = err;
 	double *delta = (double*)malloc(sizeof(double)*(m_inputSize+1));
-	double g_deriv = NORM_DOUBLE(m_lastResult * (1.0-m_lastResult));
+	double g_deriv = NORM_DOUBLE(g_deriv, m_lastResult * (1.0-m_lastResult));
 	double grad = m_lastResult * err;
 
 	for (i=0; i<(m_inputSize+1); i++) {
-		delta[i] = NORM_DOUBLE(p_theta[i] * e * g_deriv);
-		p_grad[i] += grad;
+		delta[i] = NORM_DOUBLE(delta[i], p_theta[i] * err * g_deriv);
+		p_grad[i] = NORM_DOUBLE(p_grad[i], p_grad[i] + grad);
 	}
 
 //	double alpha_d = NORM_DOUBLE(alpha * err * m_lastResult);
@@ -76,10 +71,13 @@ double *nnNode::learn(double err)
 
 double nnNode::update(int m, double alpha, double lambda)
 {
-	p_theta[0] -= alpha * (p_grad[0]/m);
+	p_theta[0] = NORM_DOUBLE(p_theta[0], p_theta[0] - alpha * (p_grad[0]/m));
 	p_grad[0] = 0.0;
 	for (int i=1; i<m_inputSize+1; i++) {
-		p_theta[i] -= alpha * ((p_grad[i] + lambda * p_theta[i]) / m);
+		p_theta[i] = NORM_DOUBLE(p_theta[i], p_theta[i] - alpha * ((p_grad[i] + lambda * p_theta[i]) / m));
+//		if (abs(p_theta[i]) < 1.0e-100)
+//			p_theta[i] = 1.0e-100;
+//			p_theta[i] = genTheta();
 		p_grad[i] = 0.0;
 	}
 }
