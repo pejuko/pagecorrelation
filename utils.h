@@ -1,6 +1,10 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
+#ifndef COUT_PRECISION
+#define COUT_PRECISION 15
+#endif
+
 #include <math.h>
 
 //#define NORM_DOUBLE(x) (isnormal(x) ? (x) : (isnan(x) ? 0.0 : (isinf(x) ? 1.0 : x)))

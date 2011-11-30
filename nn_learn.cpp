@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	double lambda = atof(argv[2]);
 
 	srandom( clock() + time(NULL) );
-	std::cout.precision(10);
+	std::cout.precision(COUT_PRECISION);
 
 	std::fstream fs;
 	fs.open("data.nn");

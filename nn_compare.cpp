@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 	}
 	
 	NN nn("data.nn");
-	std::cout.precision(10);
+	std::cout.precision(COUT_PRECISION);
 
 	if (argv[1][0] == '-') {
 		while (! std::cin.eof()) {
