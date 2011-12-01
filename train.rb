@@ -30,7 +30,7 @@ end
 j_all = []
 
   train_set = File.readlines(list_file).sort_by{rand}.map{|l| [l.strip!, l.split("\t")].flatten}
-  cmd = "./nn_learn #{alpha} #{lambda} #{img_dir} 100"
+  cmd = "./nn_learn #{alpha} #{lambda} #{img_dir} 200"
   p cmd
   Open3.popen3(cmd) {|i,o,e,t|
     i.sync = true
@@ -61,6 +61,7 @@ cycles.times do |c|
     j_all << err
     File.open('J_train.txt', 'w'){|f| f << j_all.join(",") << "\n"}
     puts "J_train = #{err}"
+    break if err < 0.18 or (errors.size > 3 and errors[-1]==errors[-2] and errors[-2]==errors[-3])
 end
   }
   File.open('J_train.txt', 'w'){|f| f << j_all.join(",")}

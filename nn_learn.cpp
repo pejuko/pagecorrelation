@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 		fs.close();
 		nn = new NN("data.nn");
 	} else {
-		nn = new NN(img_size*img_size*2, 1, 10, 40);
+		nn = new NN(img_size*img_size*2, 1, 1, 50);
 	}
 
 	double *result = (double*)malloc(sizeof(double)*nn->outputSize());
@@ -54,7 +54,8 @@ int main(int argc, char **argv)
 			double st = nn->squaredTheta();
 			std::cout << "e: " << e << std::endl;
 			std::cout << "st: " << st << std::endl;
-			e = (e + (lambda/2)*st) / samples;
+			e = e/samples;// + (lambda/(2*samples)) * st;
+			//e = e/samples;
 			std::cout << "J = " << e << std::endl;
 			nn->update(samples, alpha, lambda);
 			nn->save("data.nn");
@@ -72,7 +73,7 @@ int main(int argc, char **argv)
 		result[0] = same;
 		//result[1] = bad;
 		double *data = read_data(f1.c_str(), f2.c_str(), img_size);
-		double err = nn->learn(data, result);
+		double err = nn->learn(data, result, alpha, lambda);
 		e += err;
 		free(data);
 

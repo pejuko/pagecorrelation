@@ -49,12 +49,12 @@ double *nnLayer::process(double *input)
 }
 
 
-double *nnLayer::learn(double *err)
+double *nnLayer::learn(double *err, double alpha, double lambda)
 {
 	double **e = (double**)malloc(sizeof(double*)*m_size);
 
 	for (int i=0; i<m_size; i++) {
-		e[i] = p_nodes[i]->learn(err[i]);
+		e[i] = p_nodes[i]->learn(err[i], alpha, lambda);
 	}
 
 	int cols = m_inputSize;

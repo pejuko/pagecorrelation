@@ -8,7 +8,7 @@ NN_LIBS=-llept -lstdc++ -lm
 NN_COMPARE_SOURCES=${NN_SOURCES} nn_compare.cpp
 NN_COMPARE_FLAGS=-DNOT_VERBOSE_DEBUG=1 -Ofast -funroll-loops -lpthread #-g -pg
 NN_LEARN_SOURCES=${NN_SOURCES} nn_learn.cpp
-NN_LEARN_FLAGS=-DNOT_VERBOSE_DEBUG=1 -O3 -funroll-loops #-g -pg
+NN_LEARN_FLAGS=-DNOT_VERBOSE_DEBUG=1 -O3 -funroll-loops -g #-pg
 
 all: page_correlation nn_compare nn_learn get_theta
 

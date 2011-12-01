@@ -5,6 +5,10 @@
 #define COUT_PRECISION 20
 #endif
 
+#ifndef NUM_CPU
+#define NUM_CPU 2
+#endif
+
 #include <math.h>
 
 //#define NORM_DOUBLE(x) (isnormal(x) ? (x) : (isnan(x) ? 0.0 : (isinf(x) ? 1.0 : x)))

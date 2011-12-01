@@ -11,7 +11,7 @@ class nnLayer {
 		~nnLayer(void);
 
 		double *process(double *input);
-		double *learn(double *err);
+		double *learn(double *err, double alpha, double lambda);
 		double update(int m, double alpha, double lambda);
 	
 		int size(void) const { return m_size; };

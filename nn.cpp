@@ -56,7 +56,7 @@ double *NN::process(double *input)
 }
 
 
-double NN::learn(double *input, double *result)
+	double NN::learn(double *input, double *result, double alpha, double lambda)
 {
 	double e=0.0;
 	double *err = (double*)malloc(sizeof(double)*m_outputSize);
@@ -69,7 +69,7 @@ double NN::learn(double *input, double *result)
 
 	double *tmp;
 	for (int i=m_size-1; i>=0; i--) {
-		tmp = p_layers[i]->learn(err);
+		tmp = p_layers[i]->learn(err, alpha, lambda);
 		free(err);
 		err = tmp;
 	}

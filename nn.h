@@ -11,7 +11,7 @@ class NN {
 		~NN(void);
 
 		double *process(double *input);
-		double learn(double *input, double *result);
+		double learn(double *input, double *result, double alpha, double lambda);
 		double update(int m, double alpha, double lambda);
 
 		bool display(const char *fbase);
