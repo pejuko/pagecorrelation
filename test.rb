@@ -40,16 +40,17 @@ test_list_file = File.join test_dir, "list.txt"
     t = threshold(thresh, res[1..-1].map{|r|r.to_f})
     res[1..-1].each_with_index do |e, idx|
       out = row[2+idx].to_i
-      err[idx] += -1*(out* Math.log(e.to_f)) - (1-out)*Math.log(1-e.to_f)
+      log_err = -1*(out* Math.log(e.to_f)) - (1-out)*Math.log(1-e.to_f)
+      err[idx] += log_err if log_err==log_err and log_err.abs != Float::INFINITY
       ce += out - t[idx]
       true_positive[idx] += 1 if out==1 and t[idx]==1
       false_positive[idx] += 1 if out==1 and t[idx]==0
       true_negative[idx] += 1 if out==0 and t[idx]==0
       false_negative[idx] += 1 if out==0 and t[idx]==1
     end
-    puts "#{row[1]} #{row[2..-1].inspect} #{t.inspect} (#{res[1..-1].join(", ")}) #{err.map{|e| e/samples}.inspect}"
+    puts "#{row[1]} #{row[2..-1].inspect} #{t.inspect} (#{res[1..-1].join(", ")}) #{err.map{|e| e/(samples+1)}.inspect}"
     matches += 1 if ce==0.0
-    errors << err if err[0] != Float::NAN and err[1] != Float::NAN
+    errors << err #if err[0] != Float::NAN and err[1] != Float::NAN
   end
   }
   

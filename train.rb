@@ -58,10 +58,11 @@ cycles.times do |c|
     puts o.gets
     o.gets =~ /(\S+)$/
     err = $1.to_f
+    next if err!=err or err==Float::INFINITY # nan or inf
     j_all << err
     File.open('J_train.txt', 'w'){|f| f << j_all.join(",") << "\n"}
     puts "J_train = #{err}"
-    break if err < 0.18 or (errors.size > 3 and errors[-1]==errors[-2] and errors[-2]==errors[-3])
+    break if err < 0.05 or (errors.size > 3 and errors[-1]==errors[-2] and errors[-2]==errors[-3])
 end
   }
   File.open('J_train.txt', 'w'){|f| f << j_all.join(",")}
