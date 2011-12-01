@@ -30,7 +30,7 @@ end
 j_all = []
 
   train_set = File.readlines(list_file).sort_by{rand}.map{|l| [l.strip!, l.split("\t")].flatten}
-  cmd = "./nn_learn #{alpha} #{lambda} #{img_dir}"
+  cmd = "./nn_learn #{alpha} #{lambda} #{img_dir} 100"
   p cmd
   Open3.popen3(cmd) {|i,o,e,t|
     i.sync = true

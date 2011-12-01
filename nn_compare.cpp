@@ -10,7 +10,8 @@
 
 int compare(NN *nn, const char *f1, const char *f2)
 {
-	double *data = read_data(f1, f2);
+	int size = sqrt(nn->inputSize()/2);
+	double *data = read_data(f1, f2, size);
 	double *result = nn->process(data);
 
 	print_result(result, nn->outputSize(), f1, f2);

@@ -7,8 +7,9 @@ extern "C" {
 
 #include "utils.h"
 
+#define SQUARED_MAX_INTENSITY 65025.0 // 255**2
 
-bool get_data(const char *f, double *output)
+bool get_data(const char *f, double *output, int size)
 {
 	PIX *pix = pixRead(f);
 	assert(pix != NULL);
@@ -16,10 +17,10 @@ bool get_data(const char *f, double *output)
 	PIX *pixg, *pix8, *pixs;
 	pixg = pixRemoveColormap(pix, REMOVE_CMAP_TO_GRAYSCALE);
 	pix8 = pixConvertTo8(pixg, FALSE);
-	pixs = pixScaleToSize(pix8, 200, 200);
+	pixs = pixScaleToSize(pix8, size, size);
 
-	assert(pixs->w == 200);
-	assert(pixs->h == 200);
+	assert(pixs->w == size);
+	assert(pixs->h == size);
 
 	pixDestroy(&pix);
 	pixDestroy(&pixg);
@@ -29,7 +30,7 @@ bool get_data(const char *f, double *output)
 	for (int y=0; y<pixs->h; y++) {
 		for (int x=0; x<pixs->w; x++) {
 			pixGetPixel(pixs, x, y, &val);
-			output[y*pixs->w + x] = 1.0 - (double(val) / 255.0);
+			output[y*pixs->w + x] = 1.0 - (double(val*val) / SQUARED_MAX_INTENSITY);
 		}
 	}
 
@@ -38,15 +39,16 @@ bool get_data(const char *f, double *output)
 	return true;
 }
 
-double *read_data(const char *f1, const char *f2)
+double *read_data(const char *f1, const char *f2, int size)
 {
-	double *output = (double*)malloc(sizeof(double)*200*200*2);
-	for (int i=0; i<200*200*2; i++) {
+	int data_size = size*size*2;
+	double *output = (double*)malloc(sizeof(double)*data_size);
+	for (int i=0; i<data_size; i++) {
 		output[i] = 0.5;
 	}
 
-	get_data(f1, output);
-	get_data(f2, output);
+	get_data(f1, output, size);
+	get_data(f2, output, size);
 
 	return output;
 }
@@ -54,11 +56,11 @@ double *read_data(const char *f1, const char *f2)
 
 void write_data(const char *f1, double *data, int size)
 {
-	PIX *pix = pixCreate(200,400,8);
-	assert(size == 80001);
-	for (int y=0; y<400; y++) {
-		for (int x=0; x<200; x++) {
-			int val = (int)(data[y*200+x+1] * 255.0);
+	int img_size = sqrt((size-1)/2);
+	PIX *pix = pixCreate(img_size,img_size*2,8);
+	for (int y=0; y<img_size*2; y++) {
+		for (int x=0; x<img_size; x++) {
+			int val = (int)(data[y*img_size+x+1] * 255.0);
 			pixSetPixel(pix, x, y, val);
 		};
 	}
