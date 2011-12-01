@@ -35,7 +35,9 @@ j_all = []
   Open3.popen3(cmd) {|i,o,e,t|
     i.sync = true
     o.sync = true
-cycles.times do |c|
+
+c=0
+while c<cycles do
   puts ""
   puts "Iteration: #{c+1}"
   err = 0.0
@@ -52,6 +54,7 @@ cycles.times do |c|
       errors << err
       puts "#{c}:#{ri} #{result}"
     end
+    c+=1
     puts "updating..."
     i << "update" << "\n"
     puts o.gets
@@ -70,3 +73,4 @@ end
   puts ""
   
 system "./test.rb", test_dir, "#{thresh}"
+puts "Iterations: #{c}"
