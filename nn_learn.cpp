@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 
 	double *result = (double*)malloc(sizeof(double)*nn->outputSize());
 
-	int samples = atoi(argv[4]);
+	int samples = atoi(argv[5]);
 	int iteration = 0;
 	double e = 0.0;
 	std::cin.width(1024);
@@ -55,12 +55,12 @@ int main(int argc, char **argv)
 			double st = nn->squaredTheta();
 			std::cout << "e: " << e << std::endl;
 			std::cout << "st: " << st << std::endl;
-			e = e/samples;// + (lambda/(2*samples)) * st;
+			e = e/samples + (lambda/(2*samples)) * st;
 			//e = e/samples;
 			std::cout << "J = " << e << std::endl;
 			//nn->update(samples, alpha, lambda/samples);
 			nn->save("data.nn");
-			samples = 0;
+			//samples = 0;
 			e = 0.0;
 			++iteration;
 			continue;
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 		e += err;
 		free(data);
 
-		++samples;
+		//++samples;
 
 		std::cout << "f1: " << f1 << "   f2: " << f2 << "   err: " << err << std::endl;
 //		std::cout << "f1: " << f1 << "   f2: " << f2 << std::endl;
