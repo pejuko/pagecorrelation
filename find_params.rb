@@ -20,6 +20,8 @@ PARAMS.each do |l|
     i.sync = true
     o.sync = true
     30.times do |c|
+      puts ""
+      puts "#{c}: #{cmd}"
       errors = []
       train_set.each_with_index do |row,ri|
         i << row[0] << "\n"
