@@ -28,6 +28,7 @@ class nnNode {
 
 		int m_inputSize;
 		double m_lastResult;
+		double m_deriv;
 		double *p_theta;
 		double *p_grad;
 };

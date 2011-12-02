@@ -10,8 +10,8 @@
 
 int main(int argc, char **argv)
 {
-	if (argc != 5) {
-		std::cout << "Usage: nn_learn <alpha> <lambda> <image_dir> <image_size>" << std::endl;
+	if (argc != 6) {
+		std::cout << "Usage: nn_learn <alpha> <lambda> <image_dir> <image_size> <samples>" << std::endl;
 		std::cout << "Example: cat set-train/list.txt | nn_learn 0.1 0.0 set-train/img/" << std::endl;
 		std::cout << "It reads and update 'data.nn' file" << std::endl;
 		return 1;
@@ -38,10 +38,11 @@ int main(int argc, char **argv)
 
 	double *result = (double*)malloc(sizeof(double)*nn->outputSize());
 
-	int samples = 0;
+	int samples = atoi(argv[4]);
 	int iteration = 0;
 	double e = 0.0;
 	std::cin.width(1024);
+
 	while (! std::cin.eof()) {
 		int same=0, bad=0;
 		std::string number;
@@ -57,7 +58,7 @@ int main(int argc, char **argv)
 			e = e/samples;// + (lambda/(2*samples)) * st;
 			//e = e/samples;
 			std::cout << "J = " << e << std::endl;
-			nn->update(samples, alpha, lambda);
+			//nn->update(samples, alpha, lambda/samples);
 			nn->save("data.nn");
 			samples = 0;
 			e = 0.0;
@@ -73,7 +74,7 @@ int main(int argc, char **argv)
 		result[0] = same;
 		//result[1] = bad;
 		double *data = read_data(f1.c_str(), f2.c_str(), img_size);
-		double err = nn->learn(data, result, alpha, lambda);
+		double err = nn->learn(data, result, alpha, lambda/samples);
 		e += err;
 		free(data);
 
@@ -85,8 +86,8 @@ int main(int argc, char **argv)
 
 	free(result);
 
-	if (samples > 0)
-		nn->update(samples, alpha, lambda);
+	//if (samples > 0)
+		//nn->update(samples, alpha, lambda);
 	nn->save("data.nn");
 	delete nn;
 

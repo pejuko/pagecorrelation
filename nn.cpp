@@ -64,7 +64,8 @@ double *NN::process(double *input)
 
 	for (int i=0; i<m_outputSize; i++) {
 		err[i] = output[i] - result[i];
-		e = NORM_DOUBLE(e, e + -1 * result[i]*log(output[i]) - (1.0-result[i])*log(1.0-output[i]));
+		//e = NORM_DOUBLE(e, e + -1 * result[i]*log(output[i]) - (1.0-result[i])*log(1.0-output[i]));
+		e = NORM_DOUBLE( e, (result[i]==1) ? (e - log(output[i])) : (e - log(1.0-output[i])) );
 	}
 
 	double *tmp;

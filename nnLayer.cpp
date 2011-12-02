@@ -51,12 +51,22 @@ double *nnLayer::process(double *input)
 
 double *nnLayer::learn(double *err, double alpha, double lambda)
 {
-	double **e = (double**)malloc(sizeof(double*)*m_size);
+	//double **e = (double**)malloc(sizeof(double*)*m_size);
 
-	for (int i=0; i<m_size; i++) {
-		e[i] = p_nodes[i]->learn(err[i], alpha, lambda);
+	double *delta = (double*)malloc(sizeof(double)*(m_inputSize));
+	for (int i=0; i<m_inputSize; ++i) {
+		delta[i] = 0.0;
 	}
 
+	double *tmp;
+	int c;
+	for (int i=0; i<m_size; i++) {
+		tmp = p_nodes[i]->learn(err[i], alpha, lambda);
+		for (c=0; c<m_inputSize; ++c) delta[c] += tmp[c+1];
+		free(tmp);
+	}
+
+	/*
 	int cols = m_inputSize;
 	double *delta = (double*)malloc(sizeof(double)*(cols-1));
 	double d;
@@ -72,6 +82,7 @@ double *nnLayer::learn(double *err, double alpha, double lambda)
 		free(e[r]);
 	}
 	free(e);
+	*/
 
 	return delta;
 }
