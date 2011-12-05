@@ -60,9 +60,9 @@ double *nnLayer::learn(double *err, double alpha, double lambda)
 
 	double *tmp;
 	int c;
-	for (int i=0; i<m_size; i++) {
+	for (int i=0; i<m_size; ++i) {
 		tmp = p_nodes[i]->learn(err[i], alpha, lambda);
-		for (c=0; c<m_inputSize; ++c) delta[c] += tmp[c+1];
+		for (c=0; c<m_inputSize; ++c) delta[c] += tmp[c];
 		free(tmp);
 	}
 

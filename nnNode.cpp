@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 #include <math.h>
@@ -36,7 +37,7 @@ nnNode::~nnNode(void)
 double nnNode::process(double *input)
 {
 	double result = p_theta[0];
-	for (int i=0; i<m_inputSize; i++) {
+	for (int i=0; i<m_inputSize; ++i) {
 		result = NORM_DOUBLE(result, result + p_theta[i+1] * input[i]);
 	}
 
@@ -53,6 +54,7 @@ double *nnNode::learn(double err, double alpha, double lambda)
 	int i;
 
 	double *delta = (double*)malloc(sizeof(double)*(m_inputSize));
+	memset(delta, 0, sizeof(double)*m_inputSize);
 //	double grad = m_lastResult * err;
 
 	for (i=0; i<m_inputSize; ++i) {
