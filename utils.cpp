@@ -19,22 +19,32 @@ bool get_data(const char *f, double *output, int size)
 	pix8 = pixConvertTo8(pixg, FALSE);
 	pixs = pixScaleToSize(pix8, size, size);
 
-	assert(pixs->w == size);
-	assert(pixs->h == size);
-
 	pixDestroy(&pix);
 	pixDestroy(&pixg);
 	pixDestroy(&pix8);
 
+	assert(pixs->w == size);
+	assert(pixs->h == size);
+
+	l_uint32 threshold=128;
+	PIX *pixb, *pixt=0;
+	pixOtsuAdaptiveThreshold(pixs, pixs->w, pixs->h, 0, 0, 0, &pixt, 0);
+	pixGetPixel(pixt, 0, 0, &threshold);
+	pixb = pixThresholdToBinary(pixs, threshold);
+
+	pixDestroy(&pixs);
+	pixDestroy(&pixt);
+
 	l_uint32 val;
-	for (int y=0; y<pixs->h; y++) {
-		for (int x=0; x<pixs->w; x++) {
-			pixGetPixel(pixs, x, y, &val);
-			output[y*pixs->w + x] = 1.0 - (double(val*val) / SQUARED_MAX_INTENSITY);
+	for (int y=0; y<pixb->h; y++) {
+		for (int x=0; x<pixb->w; x++) {
+			pixGetPixel(pixb, x, y, &val);
+//			output[y*pixs->w + x] = 1.0 - (double(val*val) / SQUARED_MAX_INTENSITY);
+			output[y*pixb->w + x] = 1.0 - double(val);
 		}
 	}
 
-	pixDestroy(&pixs);
+	pixDestroy(&pixb);
 
 	return true;
 }

@@ -56,7 +56,7 @@ double *NN::process(double *input)
 }
 
 
-	double NN::learn(double *input, double *result, double alpha, double lambda)
+double NN::learn(double *input, double *result, double alpha, double lambda)
 {
 	double e=0.0;
 	double *err = (double*)malloc(sizeof(double)*m_outputSize);

@@ -54,11 +54,11 @@ double *nnNode::learn(double err, double alpha, double lambda)
 	int i;
 
 	double *delta = (double*)malloc(sizeof(double)*(m_inputSize));
-	memset(delta, 0, sizeof(double)*m_inputSize);
+//	memset(delta, 0, sizeof(double)*m_inputSize);
 //	double grad = m_lastResult * err;
 
 	for (i=0; i<m_inputSize; ++i) {
-		delta[i] = NORM_DOUBLE(delta[i], p_theta[i+1] * err * m_deriv);
+		delta[i] = NORM_DOUBLE(0.0, p_theta[i+1] * err * m_deriv);
 //		p_grad[i] = NORM_DOUBLE(p_grad[i], p_grad[i] + grad);
 	}
 
@@ -81,11 +81,7 @@ double nnNode::update(int m, double alpha, double lambda)
 	p_theta[0] = NORM_DOUBLE(p_theta[0], p_theta[0] - alpha * (p_grad[0]/m));
 	p_grad[0] = 0.0;
 	for (int i=1; i<m_inputSize+1; i++) {
-//		p_theta[i] = NORM_DOUBLE(p_theta[i], p_theta[i] + (lambda * p_theta[i]) / m);
-//		p_theta[i] = NORM_DOUBLE(p_theta[i], p_theta[i] - alpha * ((p_grad[i] + lambda * p_theta[i]) / m));
-//		if (abs(p_theta[i]) < 1.0e-100)
-//			p_theta[i] = 1.0e-100;
-//			p_theta[i] = genTheta();
+		p_theta[i] = NORM_DOUBLE(p_theta[i], p_theta[i] - alpha * ((p_grad[i] + lambda * p_theta[i]) / m));
 		p_grad[i] = 0.0;
 	}
 }
