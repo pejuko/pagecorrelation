@@ -20,7 +20,7 @@ PARAMS.each do |l|
   Open3.popen3(cmd) {|i,o,e,t|
     i.sync = true
     o.sync = true
-    90.times do |c|
+    100.times do |c|
       puts ""
       puts "#{c}: #{cmd}"
       errors = []
@@ -36,13 +36,16 @@ PARAMS.each do |l|
       j =~ /(\S+)$/
       break if $1.to_f == 0.0
       j_all << $1.to_f
-      break if j_all.size>=2 and j_all[-1] > j_all[-2]
+      if j_all.size>=2 and j_all[-1] > j_all[-2]
+        j_all << -1
+        break
+      end
     end
-    File.open("J_#{a}_#{l}.txt", 'w'){|f| f << j_all.join(",")}
+    File.open("J_#{a}_#{l}.txt", 'w'){|f| f << j_all.join(",")} if j_all.size>0 and j_all[-1]!=-1
   }
-  j_params << [j_all, a, l]
+  j_params << [j_all, a, l] if j_all[-1] != -1
 end
 end
 
 j_params.sort!{|a,b| a[0][-1] <=> b[0][-1]}
-File.open("estimated_params.txt", 'w'){|f| j_params[0..5].each{|par| f << par.inspect << "\n"}}
+File.open("estimated_params.txt", 'w'){|f| j_params[0..10].each{|par| f << par.inspect << "\n"}}
