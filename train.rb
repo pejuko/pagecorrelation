@@ -30,7 +30,7 @@ end
 j_all = []
 
   train_set = File.readlines(list_file).sort_by{rand}.map{|l| [l.strip!, l.split("\t")].flatten}
-  cmd = "./nn_learn #{alpha} #{lambda} #{img_dir} 50 #{train_set.size}"
+  cmd = "./nn_learn #{alpha} #{lambda} #{img_dir} 32 #{train_set.size}"
   p cmd
 
 c=0
@@ -66,7 +66,8 @@ while c<cycles do
     j_all << err
     File.open('J_train.txt', 'w'){|f| f << j_all.join(",") << "\n"}
     puts "J_train = #{err}"
-    break if err < 0.05 or (j_all.size > 3 and j_all[-1]==j_all[-2] and j_all[-2]==j_all[-3])
+    break if err < 0.0001 or (j_all.size > 3 and j_all[-1]==j_all[-2] and j_all[-2]==j_all[-3])
+    i << "alpha " << (alpha * (j_all.inject(0.0){|x,s| s+=x}/j_all.size)) << "\n"
 end
   }
   File.open('J_train.txt', 'w'){|f| f << j_all.join(",")}

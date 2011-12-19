@@ -36,10 +36,12 @@ PARAMS.each do |l|
       j =~ /(\S+)$/
       break if $1.to_f == 0.0
       j_all << $1.to_f
+=begin
       if j_all.size>=2 and j_all[-1] > j_all[-2]
         j_all << -1
         break
       end
+=end
     end
     File.open("J_#{a}_#{l}.txt", 'w'){|f| f << j_all.join(",")} if j_all.size>0 and j_all[-1]!=-1
   }

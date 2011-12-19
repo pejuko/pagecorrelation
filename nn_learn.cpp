@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 		fs.close();
 		nn = new NN("data.nn");
 	} else {
-		nn = new NN(img_size*img_size*2, 1, 1, 30);
+		nn = new NN(img_size*img_size*2, 1, 3, 50);
 	}
 
 	double *result = (double*)malloc(sizeof(double)*nn->outputSize());
@@ -52,7 +52,10 @@ int main(int argc, char **argv)
 		if (number.empty())
 			break;
 
-		if (number == "update") {
+		if (number == "alpha") {
+			std::cin >> alpha;
+			continue;
+		} else if (number == "update") {
 			double st = nn->squaredTheta();
 			std::cout << "e: " << e << std::endl;
 			std::cout << "st: " << st << std::endl;
@@ -82,7 +85,7 @@ int main(int argc, char **argv)
 
 		++sample;
 
-		std::cout << "f1: " << f1 << "   f2: " << f2 << "   err: " << err << std::endl;
+		std::cout << "f1: " << f1 << "   f2: " << f2 << "   alpha: " << alpha << "   err: " << err << std::endl;
 //		std::cout << "f1: " << f1 << "   f2: " << f2 << std::endl;
 	}
 

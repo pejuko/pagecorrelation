@@ -11,6 +11,7 @@ class nnLayer {
 		~nnLayer(void);
 
 		double *process(double *input);
+//		void processCPU(double *input, double *output, int start, int end);
 		double *learn(double *err, double alpha, double lambda);
 		double update(int m, double alpha, double lambda);
 	
