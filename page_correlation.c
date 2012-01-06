@@ -22,6 +22,10 @@ typedef struct options {
 	int   width;
 	int   height;
 	int   threshold;
+	int   cc_min_width;
+	int   cc_min_height;
+	int   cc_max_width;
+	int   cc_max_height;
 	char *fname1;
 	char *fname2;
 	t_threshold_method method;
@@ -38,6 +42,10 @@ void options_reset(t_options *o) {
 	o->width = 800;
 	o->height = 1100;
 	o->threshold = 128;
+	o->cc_min_width = 3;
+	o->cc_min_height = 5;
+	o->cc_max_width = o->width/4;
+	o->cc_max_height = 50;
 	o->method = THRESHOLD_OTSU;
 	o->fname1 = NULL;
 	o->fname2 = NULL;
@@ -108,6 +116,13 @@ void help()
 	printf("\t0 for one argument means keep aspect ratio.\n");
 	printf("\n");
 
+	printf("--cc-min-width=<n> (default: 3)\n");
+	printf("--cc-min-height=<n> (default: 5)\n");
+	printf("--cc-max-width=<n> (default: width/4)\n");
+	printf("--cc-max-height=<n> (default: 50)\n");
+	printf("\tMin and max size of connected component.\n");
+	printf("\n");
+
 	printf("--enable-text-correlation\n");
 	printf("--disable-text-correlation (default)\n");
 	printf("\tIf layout analysis thinks two images does not match then pixel correlation matters.\n");
@@ -143,6 +158,10 @@ t_options* parse_command_line(int argc, char **argv)
 			{"threshold", required_argument, 0, 't'},
 			{"min-lines", required_argument, 0, 'l'},
 			{"min-words", required_argument, 0, 'v'},
+			{"cc-min-width", required_argument, 0, 3},
+			{"cc-min-height", required_argument, 0, 4},
+			{"cc-max-width", required_argument, 0, 5},
+			{"cc-max-height", required_argument, 0, 6},
 			{"blank-threshold", required_argument, 0, 'b'},
 			{"width", required_argument, 0, 'w'},
 			{"height", required_argument, 0, 'h'},
@@ -160,6 +179,18 @@ t_options* parse_command_line(int argc, char **argv)
 				break;
 			case 2:
 				o->correlation_for_text = 0;
+				break;
+			case 3:
+				o->cc_min_width = atoi(optarg);
+				break;
+			case 4:
+				o->cc_min_height = atoi(optarg);
+				break;
+			case 5:
+				o->cc_max_width = atoi(optarg);
+				break;
+			case 6:
+				o->cc_max_height = atoi(optarg);
 				break;
 			case 's':
 				o->size_threshold = atof(optarg);
@@ -284,6 +315,8 @@ PIX* scale(PIX *pix, char *name, t_options *o)
 	write(name, "-8", pix8);
 
 	pixb = binarize(pix8, o);
+
+	/*
 	//write(name, "-b1", pixb);
 	pixGetWordBoxesInTextlines(pixb, 1, 5, 8, o->width, 100, &boxa, &na);
 	naa = boxaExtractSortedPattern(boxa, na);
@@ -292,6 +325,7 @@ PIX* scale(PIX *pix, char *name, t_options *o)
 		write(name, "-box", pixDrawBoxaRandom(pixb, boxa, 2));
 		boxaGetExtent(boxa, 0, 0, &cbox);
 	}
+	*/
 
 	/*
 	x = (l_int32)(((float)(cbox->x) / (float)(pixb->w)) * (float)(pix8->w)) - 5;
@@ -382,10 +416,10 @@ int main(int argc, char **argv)
 	pixb2 = scale(pix2, "pix2", o);
 	/*printf("pixb1: %dx%d\npixb2: %dx%d\n", pixb1->w, pixb1->h, pixb2->w, pixb2->h);*/
 
-	pixGetWordBoxesInTextlines(pixb1, 1, 3, 5, o->width/4, 50, &boxa1, &na1);
+	pixGetWordBoxesInTextlines(pixb1, 1, o->cc_min_width, o->cc_min_height, o->cc_max_width, o->cc_max_height, &boxa1, &na1);
 	if (boxa1->n > 0)
 		write("pixb1", "-box", pixDrawBoxaRandom(pixb1, boxa1, 2));
-	pixGetWordBoxesInTextlines(pixb2, 1, 3, 5, o->width/4, 50, &boxa2, &na2);
+	pixGetWordBoxesInTextlines(pixb2, 1, o->cc_min_width, o->cc_min_height, o->cc_max_width, o->cc_max_height, &boxa2, &na2);
 	if (boxa2->n > 0)
 		write("pixb2", "-box", pixDrawBoxaRandom(pixb2, boxa2, 2));
 	naa1 = boxaExtractSortedPattern(boxa1, na1);
